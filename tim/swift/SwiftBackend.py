@@ -8,6 +8,7 @@ Created on Mar 17, 2015
 import logging
 import swiftclient
 import io
+from tim.swift.SwiftConfig import swift_url, swift_user, swift_pw
 
 class SwiftBackend(object):
 	'''
@@ -20,9 +21,9 @@ class SwiftBackend(object):
 		'''
 		self.log = logging.getLogger(__name__)
 		self.log.debug('initializing...')
-		self.authurl = ''
-		self.user = ''
-		self.key = ''
+		self.authurl = swift_url
+		self.user = swift_user
+		self.key = swift_pw
 		self.swiftC = None
 		
 		self._assertConnection()
