@@ -79,3 +79,33 @@ class SwiftBackend(object):
 		self._assertConnection()
 		rsp = dict()
 		self.swiftC.delete_object(container=container, obj=name, query_string=None, response_dict=rsp)
+		
+		
+		
+###############################################################################
+###############################################################################			
+		
+		
+		
+		
+	# Retrieves list of all objects of the specified container
+	#@exception_wrapper(404, "requested resource does not exist", log)
+	def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
+		self.log.debug("Retrieving list of all objects of container: {} with parameter: limit = {}, marker = {}, prefix = {}"
+				.format(container_name, limit, marker, prefix))
+		self._assertConnection()
+		full_listing = limit is None  # bypass default limit of 10.000 of swift-client
+		files = self.swiftC.get_container(
+			container_name, marker=marker, limit=limit, prefix=prefix,
+			full_listing=full_listing)
+		return files[1]
+	
+	
+	
+			
+	def updateObjectMetaData(self, container, name, metaDict):
+		self.log.debug('updating object metadata in swift. updating obj {} in container {}; adding {}'.format(name, container, metaDict))
+		self._assertConnection()
+		rsp = dict()
+		self.swiftC.post_object(container=container, obj=name, headers=metaDict, response_dict=rsp)
+		self.log.debug(rsp)
