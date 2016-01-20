@@ -30,4 +30,5 @@ class ImportFilterJpeg(ImportFilterInterface):
 	
 	def extractMetaData(self, obj):
 		tags = exifread.process_file(obj, details=False)
+		#print(tags)
 		return self.convertMetaDataToSwiftFormat(tags)	

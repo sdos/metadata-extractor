@@ -29,10 +29,13 @@ class SwiftBackend(object):
 		self._assertConnection()
 ###############################################################################
 ###############################################################################
-		
+
+	def _getConnection(self):
+		return swiftclient.client.Connection(authurl=self.authurl, user=self.user, key=self.key, retries=1, insecure='true')
+	
 	def _createConnection(self):
 		self.log.debug('establishing NEW connection')
-		self.swiftC = swiftclient.client.Connection(authurl=self.authurl, user=self.user, key=self.key, retries=1, insecure='true')
+		self.swiftC = self._getConnection()
 		
 	def _verifyConnection(self):
 		try:
@@ -103,9 +106,3 @@ class SwiftBackend(object):
 	
 	
 			
-	def updateObjectMetaData(self, container, name, metaDict):
-		self.log.debug('updating object metadata in swift. updating obj {} in container {}; adding {}'.format(name, container, metaDict))
-		self._assertConnection()
-		rsp = dict()
-		self.swiftC.post_object(container=container, obj=name, headers=metaDict, response_dict=rsp)
-		self.log.debug(rsp)

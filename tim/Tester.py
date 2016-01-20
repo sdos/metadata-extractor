@@ -12,7 +12,7 @@ from tim.metadataExtractor.Extractor import Extractor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-thisContainer = 'media'
+thisContainer = 'jpg-test'
 
 log = logging.getLogger()
 sb = SwiftBackend()

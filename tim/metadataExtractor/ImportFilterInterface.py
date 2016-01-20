@@ -19,6 +19,7 @@ class ImportFilterInterface(object):
 		
 	def extractMetaData(self, obj):
 		result = {'placeholder':'placeholder'}
+		print("TEST")
 		return result
 	
 	
