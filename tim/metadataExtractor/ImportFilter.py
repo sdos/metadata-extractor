@@ -22,7 +22,7 @@ class ImportFilterJpeg(ImportFilterInterface):
 		'''
 	def convertMetaDataToSwiftFormat(self, mdRaw):
 		mdConv = dict()
-		print(mdRaw)
+		#print(mdRaw)
 		for k, v in mdRaw.items():
 			#if k in self.myValidTagNames:
 				mdConv['x-object-meta-filter_{}_{}'.format(self.myName, k.replace(' ', '_'))] = v.__str__()

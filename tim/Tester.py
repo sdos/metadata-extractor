@@ -4,7 +4,6 @@ Created on Jan 19, 2016
 @author: tim
 '''
 import logging
-from tim.swift.SwiftBackend import SwiftBackend
 from tim.metadataExtractor.Extractor import Extractor
 
 
@@ -12,11 +11,10 @@ from tim.metadataExtractor.Extractor import Extractor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-thisContainer = 'jpg-test'
+thisContainer = 'themes'
 
 log = logging.getLogger()
-sb = SwiftBackend()
-ex = Extractor(swiftBackend=sb, containerName=thisContainer)
+ex = Extractor(containerName=thisContainer)
 
 
 
