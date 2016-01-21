@@ -11,7 +11,7 @@ from tim.metadataExtractor.Extractor import Extractor
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-thisContainer = 'themes'
+thisContainer = 'jpg-test'
 
 log = logging.getLogger()
 ex = Extractor(containerName=thisContainer)

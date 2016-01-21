@@ -20,15 +20,12 @@ class ImportFilterJpeg(ImportFilterInterface):
 		'''
 		Constructor
 		'''
-	def convertMetaDataToSwiftFormat(self, mdRaw):
-		mdConv = dict()
-		#print(mdRaw)
-		for k, v in mdRaw.items():
-			#if k in self.myValidTagNames:
-				mdConv['x-object-meta-filter_{}_{}'.format(self.myName, k.replace(' ', '_'))] = v.__str__()
-		return mdConv
 	
 	def extractMetaData(self, obj):
 		tags = exifread.process_file(obj, details=False)
 		#print(tags)
 		return self.convertMetaDataToSwiftFormat(tags)	
+	
+	
+	
+	

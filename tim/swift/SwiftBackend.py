@@ -54,6 +54,7 @@ class SwiftBackend(object):
 	
 	def writeObjMetaData(self, conn, containerName, objName, metaDict):
 		self.log.debug('updating object metadata in swift. updating obj {} in container {}; adding {}'.format(objName, containerName, metaDict))
-		conn.post_object(container=containerName, obj=objName, headers=metaDict, response_dict=None)
+		#{'content-type':'application/octet-stream'}
+		conn.post_object(container=containerName, obj=objName, headers={'x-object-meta-fuuuuuuu':'application/octet-stream'}, response_dict=None)
 		return '{} / {}'.format(containerName, objName)
 			
