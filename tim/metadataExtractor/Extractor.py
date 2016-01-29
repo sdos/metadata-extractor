@@ -8,6 +8,7 @@ from tim.metadataExtractor.ImportFilter import ImportFilterJpeg
 from tim.swift.SwiftBackend import SwiftBackend
 import swiftclient.multithreading
 import concurrent.futures
+from tim.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
 
 
 class Extractor(object):
@@ -29,14 +30,29 @@ class Extractor(object):
 	def getFilterForObjType(self, objType):
 		return self.mapping[objType]()
 	
+	
+	
+	def getDataAndIdentifyContentType(self, conn, objType, objName):
+		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
+		ctype = ContentTypeIdentifier().identifyContentType(thisObjBlob)
+		if objType == ctype:
+			return "same same..."
+		return self.sb.updateObjContentType(conn, containerName=self.containerName, objName=objName, newContentType=ctype)
+		
+		
 		
 	def getDataAndRunFilter(self, conn, objType, objName):
-		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName) 
-		thisFilter = self.getFilterForObjType(objType)
+		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
+		try:
+			thisFilter = self.getFilterForObjType(objType)
+		except:
+			raise TypeError("No Filter for type {}".format(objType))
 		r = thisFilter.extractMetaData(thisObjBlob)
 		return self.sb.writeObjMetaData(conn=conn, containerName=self.containerName, objName=objName, metaDict=r)
 			
-	def runForWholeContainer(self):
+			
+			
+	def runForWholeContainer(self, functionOnObject):
 		with swiftclient.multithreading.ConnectionThreadPoolExecutor(self.sb._getConnection, max_workers=20) as executor:
 			objs = self.sb.get_object_list(self.containerName)
 			future_results = []
@@ -46,20 +62,26 @@ class Extractor(object):
 				thisObjType = thisObj['content_type']
 				thisObjName = thisObj['name']
 				
-				if (thisObjType not in self.mapping):
-					self.log.error('no filter found for type : {} on obj: {}'.format(thisObjType, thisObjName))
-					continue
-				self.log.info('running filter for type : {} on obj: {}'.format(thisObjType, thisObjName))
-				future_results.append(executor.submit(self.getDataAndRunFilter, thisObjType, thisObjName))
+				self.log.info('running {} for type : {} on obj: {}'.format(functionOnObject.__name__, thisObjType, thisObjName))
+				future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
 			
 			# try to get the individual results from the filters
 			for future in concurrent.futures.as_completed(future_results):
 				try:
 					data = future.result()
 				except Exception as exc:
-					self.log.error('Filter failed with exception: {}'.format(exc))
+					self.log.error('worker failed with exception: {}'.format(exc))
 				else:
-					self.log.info('Filter succeeded on obj: {}'.format(data))
+					self.log.info('worker succeeded on obj: {}'.format(data))
 				
+	
+	
+	def runFilterForWholeContainer(self):
+			self.runForWholeContainer(functionOnObject=self.getDataAndRunFilter)
+			
+			
+			
+	def runIdentifierForWholeContainer(self):
+			self.runForWholeContainer(functionOnObject=self.getDataAndIdentifyContentType)
 			
 			

@@ -34,6 +34,17 @@ class SwiftBackend(object):
 ###############################################################################
 ###############################################################################			
 		
+
+	def removeInternalMetadata(self, mdIn):
+		mdOut = mdIn.copy()
+		for k in mdIn.keys():
+			if not k.startswith('x-object-meta-'):
+				mdOut.pop(k)
+		return mdOut
+		
+#############################################################################
+###############################################################################			
+		
 	# Retrieves list of all objects of the specified container
 	#@exception_wrapper(404, "requested resource does not exist", log)
 	def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
@@ -55,6 +66,13 @@ class SwiftBackend(object):
 	def writeObjMetaData(self, conn, containerName, objName, metaDict):
 		self.log.debug('updating object metadata in swift. updating obj {} in container {}; adding {}'.format(objName, containerName, metaDict))
 		#{'content-type':'application/octet-stream'}
-		conn.post_object(container=containerName, obj=objName, headers={'x-object-meta-fuuuuuuu':'application/octet-stream'}, response_dict=None)
+		conn.post_object(container=containerName, obj=objName, headers=metaDict, response_dict=None)
 		return '{} / {}'.format(containerName, objName)
-			
+		
+	def updateObjContentType(self, conn, containerName, objName, newContentType):
+		self.log.debug('updating object content type in swift. updating obj {} in container {}; setting {}'.format(objName, containerName, newContentType))
+		header = conn.head_object(container=containerName, obj=objName, headers=None)
+		header = self.removeInternalMetadata(header)
+		header['content-type'] = newContentType
+		conn.post_object(container=containerName, obj=objName, headers=header, response_dict=None)
+		return header
