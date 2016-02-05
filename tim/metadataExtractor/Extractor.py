@@ -59,7 +59,7 @@ class Extractor(object):
 			future_results = []
 			
 			# first go through all objs in the container and spawn a thread to run the filter
-			self.log.error('committing {} jobs for {}. Using {} worker threads'.format(len(objs), functionOnObject.__name__, self.numWorkers))
+			self.log.error('committing {} jobs for {}'.format(len(objs), functionOnObject.__name__))
 			for thisObj in objs:
 				thisObjType = thisObj['content_type']
 				thisObjName = thisObj['name']
@@ -68,7 +68,7 @@ class Extractor(object):
 				future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
 			
 			# try to get the individual results from the filters
-			self.log.error('Starting workers...')
+			self.log.error('Starting {} worker threads...'.format(self.numWorkers))
 			numFailedJobs = 0
 			numOkJobs = 0
 			for future in concurrent.futures.as_completed(future_results):
