@@ -8,10 +8,10 @@ from tim.metadataExtractor.Extractor import Extractor
 
 
 
+# log lvls: DEBUG - INFO - WARNING - ERROR - CRITICAL
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
-
-thisContainer = 'enron-email_1'
+thisContainer = 'enron-email_2'
 
 log = logging.getLogger()
 ex = Extractor(containerName=thisContainer)
@@ -24,6 +24,6 @@ if __name__ == '__main__':
 	
 	
 	ex.runIdentifierForWholeContainer()
-	ex.runFilterForWholeContainer()
+	#ex.runFilterForWholeContainer()
 	
 	log.error('DONE')
