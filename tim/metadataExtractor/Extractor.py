@@ -61,12 +61,15 @@ class Extractor(object):
 			# first go through all objs in the container and spawn a thread to run the filter
 			self.log.error('committing {} jobs for {}'.format(len(objs), functionOnObject.__name__))
 			for thisObj in objs:
-				thisObjType = thisObj['content_type']
-				thisObjName = thisObj['name']
-				
-				self.log.info('running {} for type : {} on obj: {}'.format(functionOnObject.__name__, thisObjType, thisObjName))
-				future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
-			
+				try:
+					thisObjType = thisObj['content_type']
+					thisObjName = thisObj['name']
+					
+					self.log.info('running {} for type : {} on obj: {}'.format(functionOnObject.__name__, thisObjType, thisObjName))
+					future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
+				except Exception as exc:
+					self.log.warning('could not create job for obj: {}. Exc: {}'.format(thisObj, exc))
+					
 			# try to get the individual results from the filters
 			self.log.error('Starting {} worker threads...'.format(self.numWorkers))
 			numFailedJobs = 0
@@ -81,7 +84,7 @@ class Extractor(object):
 					numOkJobs += 1
 					self.log.info('worker succeeded on obj: {}'.format(data))
 			self.log.error('Workers done!')
-			self.log.error('OK: {}, failed: {}, total: {}, fail rate: {}, missing: {} '
+			self.log.error('OK: {}, failed: {}, total: {}, fail rate: {}%, missing: {} '
 						.format(numOkJobs, 
 							numFailedJobs, 
 							(numOkJobs + numFailedJobs),

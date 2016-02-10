@@ -17,11 +17,13 @@ class ImportFilterInterface(object):
 		'''
 		
 		
-	def convertMetaDataToSwiftFormat(self, mdRaw):
+	def cleanupMetaDataDict(self, mdRaw):
 		mdConv = dict()
 		#print(mdRaw)
 		for k, v in mdRaw.items():
-				mdConv['x-object-meta-filter_{}_{}'.format(self.myName, k.replace(' ', '_'))] = v.__str__()
+				k_clean = k.replace(' ', '_')
+				if k_clean in self.myValidTagNames:
+					mdConv['x-object-meta-filter_{}_{}'.format(self.myName, k_clean)] = v.__str__()
 		return mdConv	
 		
 	def extractMetaData(self, obj):
