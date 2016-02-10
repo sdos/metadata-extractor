@@ -49,7 +49,7 @@ class Extractor(object):
 		except:
 			raise TypeError("No Filter for type {}".format(objType))
 		r = thisFilter.extractMetaData(thisObjBlob)
-		return self.sb.writeObjMetaData(conn=conn, containerName=self.containerName, objName=objName, metaDict=r)
+		return self.sb.updateMetaDataFields(conn=conn, containerName=self.containerName, objName=objName, metaDict=r)
 			
 			
 			

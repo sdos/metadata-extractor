@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	log.error('starting metadata extractor tester')
 	
 	
-	#ex.runIdentifierForWholeContainer()
+	ex.runIdentifierForWholeContainer()
 	ex.runFilterForWholeContainer()
 	
 	log.error('DONE')

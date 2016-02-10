@@ -63,16 +63,18 @@ class SwiftBackend(object):
 		b = io.BytesIO(r[1])
 		return b
 	
-	def writeObjMetaData(self, conn, containerName, objName, metaDict):
-		self.log.debug('updating object metadata in swift. updating obj {} in container {}; adding {}'.format(objName, containerName, metaDict))
-		#{'content-type':'application/octet-stream'}
-		conn.post_object(container=containerName, obj=objName, headers=metaDict, response_dict=None)
-		return '{} / {}'.format(containerName, objName)
+	
+	def updateMetaDataFields(self, conn, containerName, objName, metaDict):
+		self.log.debug('updating object metadata in swift. updating obj {} in container {}; updating {}'.format(objName, containerName, metaDict))
+		oldHeader = conn.head_object(container=containerName, obj=objName, headers=None)
+		oldHeader = self.removeInternalMetadata(oldHeader)
+		newHeader = dict(oldHeader, **metaDict)
+		conn.post_object(container=containerName, obj=objName, headers=newHeader, response_dict=None)
+		return '{} / {} : {}'.format(containerName, objName, newHeader)
+	
 		
 	def updateObjContentType(self, conn, containerName, objName, newContentType):
-		self.log.debug('updating object content type in swift. updating obj {} in container {}; setting {}'.format(objName, containerName, newContentType))
-		header = conn.head_object(container=containerName, obj=objName, headers=None)
-		header = self.removeInternalMetadata(header)
-		header['content-type'] = newContentType
-		conn.post_object(container=containerName, obj=objName, headers=header, response_dict=None)
-		return header
+		h = dict()
+		h['content-type'] = newContentType
+		self.updateMetaDataFields(conn, containerName, objName, h)
+		return '{} / {} : {}'.format(containerName, objName, h)
