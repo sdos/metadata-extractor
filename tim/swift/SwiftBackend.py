@@ -68,7 +68,10 @@ class SwiftBackend(object):
 		self.log.debug('updating object metadata in swift. updating obj {} in container {}; updating {}'.format(objName, containerName, metaDict))
 		oldHeader = conn.head_object(container=containerName, obj=objName, headers=None)
 		oldHeader = self.removeInternalMetadata(oldHeader)
+		print(oldHeader)
+		print(metaDict)
 		newHeader = dict(oldHeader, **metaDict)
+		print(newHeader)
 		conn.post_object(container=containerName, obj=objName, headers=newHeader, response_dict=None)
 		return '{} / {} : {}'.format(containerName, objName, newHeader)
 	

@@ -15,20 +15,20 @@ class ImportFilterJpeg(ImportFilterInterface):
 	myContentType = 'image/jpeg'
 	
 	myValidTagNames = [
-					'Image_DateTime',
-					'EXIF_LightSource',
-					'Image_GPSInfo',
-					'EXIF_DigitalZoomRatio',
-					'Image_Make',
-					'Image_YResolution',
-					'Image_Model',
-					'EXIF_ExposureTime',
-					'EXIF_ExposureMode',
-					'Image_Orientation',
-					'EXIF_DateTimeOriginal',
-					'Image_Software',
-					'EXIF_Flash',
-					'Image_XResolution'
+			'image-datetime',
+			'exif-lightsource',
+			'image-gpsinfo',
+			'exif-digitalzoomratio',
+			'image-make',
+			'image-yresolution',
+			'image-model',
+			'exif-exposuretime',
+			'exif-exposuremode',
+			'image-orientation',
+			'exif-datetimeoriginal',
+			'image-software',
+			'exif-flash',
+			'image-xresolution',
 	]
 
 	def __init__(self):

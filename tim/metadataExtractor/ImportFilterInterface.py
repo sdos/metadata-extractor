@@ -21,9 +21,9 @@ class ImportFilterInterface(object):
 		mdConv = dict()
 		#print(mdRaw)
 		for k, v in mdRaw.items():
-				k_clean = k.replace(' ', '_')
+				k_clean = k.replace(' ', '-').lower()
 				if k_clean in self.myValidTagNames:
-					mdConv['x-object-meta-filter_{}_{}'.format(self.myName, k_clean)] = v.__str__()
+					mdConv['x-object-meta-filter-{}-{}'.format(self.myName, k_clean)] = v.__str__()
 		return mdConv	
 		
 	def extractMetaData(self, obj):
