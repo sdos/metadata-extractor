@@ -9,6 +9,7 @@ from tim.swift.SwiftBackend import SwiftBackend
 import swiftclient.multithreading
 import concurrent.futures
 from tim.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
+from tim.metadataExtractor.Exceptions import NoFilterFoundException
 
 
 class Extractor(object):
@@ -47,7 +48,7 @@ class Extractor(object):
 		try:
 			thisFilter = self.getFilterForObjType(objType)
 		except:
-			raise TypeError("No Filter for type {}".format(objType))
+			raise NoFilterFoundException("No Filter for type {}".format(objType))
 		r = thisFilter.extractMetaData(thisObjBlob)
 		return self.sb.updateMetaDataFields(conn=conn, containerName=self.containerName, objName=objName, metaDict=r)
 			
@@ -73,10 +74,14 @@ class Extractor(object):
 			# try to get the individual results from the filters
 			self.log.error('Starting {} worker threads...'.format(self.numWorkers))
 			numFailedJobs = 0
+			numNoFilter = 0
 			numOkJobs = 0
 			for future in concurrent.futures.as_completed(future_results):
 				try:
 					data = future.result()
+				except NoFilterFoundException as exc:
+					self.log.warning('no filter found: {}'.format(exc))
+					numNoFilter += 1
 				except Exception as exc:
 					self.log.warning('worker failed with exception: {}'.format(exc))
 					numFailedJobs += 1
@@ -84,12 +89,13 @@ class Extractor(object):
 					numOkJobs += 1
 					self.log.info('worker succeeded on obj: {}'.format(data))
 			self.log.error('Workers done!')
-			self.log.error('OK: {}, failed: {}, total: {}, fail rate: {}%, missing: {} '
+			self.log.error('OK: {}, failed: {}, no filter: {} -- total: {}, fail rate: {}%, missing: {} '
 						.format(numOkJobs, 
-							numFailedJobs, 
-							(numOkJobs + numFailedJobs),
-							(100/(numOkJobs + numFailedJobs)) * numFailedJobs,
-							len(objs) - (numOkJobs + numFailedJobs)))
+							numFailedJobs,
+							numNoFilter,
+							(numOkJobs + numFailedJobs + numNoFilter),
+							((100/(numOkJobs + numFailedJobs)) * numFailedJobs) if ((numOkJobs + numFailedJobs) > 0) else 0,
+							len(objs) - (numOkJobs + numFailedJobs + numNoFilter)))
 	
 	
 	def runFilterForWholeContainer(self):
