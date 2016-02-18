@@ -178,6 +178,12 @@ class ImportFilterEmail(ImportFilterInterface):
     myContentType = 'text/plain'
 
     myValidTagNames = ['content-transfer-encoding',
+                       'to',
+                       'from',
+                       'subject',
+                       'date',
+                       'x-bcc',
+                       'x-cc'
                        ]
 
     def __init__(self):
