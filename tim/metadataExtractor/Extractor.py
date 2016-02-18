@@ -4,12 +4,12 @@ Created on Jan 19, 2016
 @author: tim
 '''
 import logging
-from tim.metadataExtractor.ImportFilter import ImportFilterBmp
-from tim.metadataExtractor.ImportFilter import ImportFilterGif
-from tim.metadataExtractor.ImportFilter import ImportFilterJpeg
-from tim.metadataExtractor.ImportFilter import ImportFilterPng
-from tim.metadataExtractor.ImportFilter import ImportFilterTiff
-from tim.metadataExtractor.ImportFilter import ImportFilterEmail
+from tim.metadataExtractor.ImportFilterImages import ImportFilterBmp
+from tim.metadataExtractor.ImportFilterImages import ImportFilterGif
+from tim.metadataExtractor.ImportFilterImages import ImportFilterJpeg
+from tim.metadataExtractor.ImportFilterImages import ImportFilterPng
+from tim.metadataExtractor.ImportFilterImages import ImportFilterTiff
+from tim.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
 from tim.swift.SwiftBackend import SwiftBackend
 import swiftclient.multithreading
 import concurrent.futures
@@ -29,7 +29,7 @@ class Extractor(object):
     mapping[ImportFilterPng.myContentType] = ImportFilterPng
     mapping[ImportFilterTiff.myContentType] = ImportFilterTiff
 
-    # email filter
+    # document filters
     mapping[ImportFilterEmail.myContentType] = ImportFilterEmail
 
     def __init__(self, containerName):

@@ -1,15 +1,12 @@
 '''
-Created on Jan 19, 2016
+Created on Feb 18, 2016
 
-@author: tim
+@author: Christoph Trybek
 '''
-
+from tim.metadataExtractor.ImportFilterInterface import ImportFilterInterface
 import exifread
 from PIL import Image
-from email.parser import Parser, BytesParser
-from tim.metadataExtractor.ImportFilterInterface import ImportFilterInterface
 
-# image filters
 class ImportFilterBmp(ImportFilterInterface):
     '''
     classdocs
@@ -166,33 +163,5 @@ class ImportFilterTiff(ImportFilterInterface):
         if not metadata:
             imgfile = Image.open(obj)
             metadata['image-size'] = str(imgfile.size[0]) + " x " + str(imgfile.size[1])
-
-        return self.cleanupMetaDataDict(metadata)
-
-# email filter
-class ImportFilterEmail(ImportFilterInterface):
-    '''
-    classdocs
-    '''
-    myName = 'email'
-    myContentType = 'text/plain'
-
-    myValidTagNames = ['content-transfer-encoding',
-                       'to',
-                       'from',
-                       'subject',
-                       'date',
-                       'x-bcc',
-                       'x-cc'
-                       ]
-
-    def __init__(self):
-        '''
-        Constructor
-        '''
-
-    def extractMetaData(self, obj):
-        headers = BytesParser().parse(obj)
-        metadata = dict(headers.items())
 
         return self.cleanupMetaDataDict(metadata)
