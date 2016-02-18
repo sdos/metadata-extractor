@@ -4,7 +4,7 @@ Created on Jan 29, 2016
 @author: tim
 '''
 
-import magic
+# import magic
 
 class ContentTypeIdentifier(object):
 	'''
