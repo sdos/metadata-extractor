@@ -11,7 +11,7 @@ from tim.metadataExtractor.Extractor import Extractor
 # log lvls: DEBUG - INFO - WARNING - ERROR - CRITICAL
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-thisContainer = 'jpg-test'
+thisContainer = 'filter_test'
 
 log = logging.getLogger()
 ex = Extractor(containerName=thisContainer)
