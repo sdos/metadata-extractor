@@ -22,7 +22,7 @@ class ImportFilterInterface(object):
 		#print(mdRaw)
 		for k, v in mdRaw.items():
 				k_clean = k.replace(' ', '-').lower()
-				if k_clean in self.myValidTagNames:
+				if k_clean in self.myValidTagNames and len(v.__str__())>0:
 					mdConv['x-object-meta-filter-{}-{}'.format(self.myName, k_clean)] = v.__str__()
 		return mdConv	
 		
