@@ -10,6 +10,7 @@ from PIL import Image
 class ImportFilterBmp(ImportFilterInterface):
     '''
     classdocs
+    @author: Christoph Trybek
     '''
     myName = 'bmp'
     myContentType = 'image/x-ms-bmp'
@@ -36,6 +37,7 @@ class ImportFilterBmp(ImportFilterInterface):
 class ImportFilterGif(ImportFilterInterface):
     '''
     classdocs
+    @author: Christoph Trybek
     '''
     myName = 'gif'
     myContentType = 'image/gif'
@@ -62,6 +64,7 @@ class ImportFilterGif(ImportFilterInterface):
 class ImportFilterJpeg(ImportFilterInterface):
     '''
     classdocs
+    @author: Christoph Trybek
     '''
     myName = 'jpeg'
     myContentType = 'image/jpeg'
@@ -104,6 +107,7 @@ class ImportFilterJpeg(ImportFilterInterface):
 class ImportFilterPng(ImportFilterInterface):
     '''
     classdocs
+    @author: Christoph Trybek
     '''
     myName = 'png'
     myContentType = 'image/png'
@@ -129,6 +133,7 @@ class ImportFilterPng(ImportFilterInterface):
 class ImportFilterTiff(ImportFilterInterface):
     '''
     classdocs
+    @author: Christoph Trybek
     '''
     myName = 'tiff'
     myContentType = 'image/tiff'

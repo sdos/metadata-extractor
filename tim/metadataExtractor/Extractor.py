@@ -15,6 +15,7 @@ import swiftclient.multithreading
 import concurrent.futures
 from tim.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
 from tim.metadataExtractor.Exceptions import NoFilterFoundException
+from tim.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
 
 
 class Extractor(object):
@@ -31,6 +32,7 @@ class Extractor(object):
 
     # document filters
     mapping[ImportFilterEmail.myContentType] = ImportFilterEmail
+    mapping[ImportFilterPDF.myContentType] = ImportFilterPDF
 
     def __init__(self, containerName):
         '''
