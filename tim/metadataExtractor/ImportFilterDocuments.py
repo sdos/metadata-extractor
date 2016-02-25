@@ -30,35 +30,35 @@ class ImportFilterPDF(ImportFilterInterface):
 
 	def extractMetaData(self, obj):
 		tags = PDFDocument(PDFParser(obj)).info
-		#print(str(tags[0]))
+		# print(str(tags[0]))
 		return self.cleanupMetaDataDict(tags[0])
 
 
 # email filter
 class ImportFilterEmail(ImportFilterInterface):
-    '''
-    classdocs
-    @author: Hoda Noori
-    '''
-    myName = 'email'
-    myContentType = 'text/plain'
+	'''
+	classdocs
+	@author: Hoda Noori
+	'''
+	myName = 'email'
+	myContentType = 'text/plain'
 
-    myValidTagNames = ['content-transfer-encoding',
-                       'to',
-                       'from',
-                       'subject',
-                       'date',
-                       'x-bcc',
-                       'x-cc'
-                       ]
+	myValidTagNames = ['content-transfer-encoding',
+					   'to',
+					   'from',
+					   'subject',
+					   'date',
+					   'x-bcc',
+					   'x-cc'
+					   ]
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
+	def __init__(self):
+		'''
+		Constructor
+		'''
 
-    def extractMetaData(self, obj):
-        headers = BytesParser().parse(obj)
-        metadata = dict(headers.items())
+	def extractMetaData(self, obj):
+		headers = BytesParser().parse(obj)
+		metadata = dict(headers.items())
 
-        return self.cleanupMetaDataDict(metadata)
+		return self.cleanupMetaDataDict(metadata)

@@ -15,9 +15,9 @@ log = logging.getLogger()
 ex = Extractor(containerName=thisContainer)
 
 if __name__ == '__main__':
-    log.error('starting metadata extractor tester')
+	log.error('starting metadata extractor tester')
 
-    ex.runIdentifierForWholeContainer()
-    ex.runFilterForWholeContainer()
+	ex.runIdentifierForWholeContainer()
+	ex.runFilterForWholeContainer()
 
-    log.error('DONE')
+	log.error('DONE')
