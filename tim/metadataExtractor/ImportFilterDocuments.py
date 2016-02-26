@@ -17,6 +17,7 @@ class ImportFilterPDF(ImportFilterInterface):
 	myContentType = 'application/pdf'
 	myValidTagNames = [
 		'title',
+		'author',
 		'creator',
 		'creationdate',
 		'producer',

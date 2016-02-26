@@ -23,7 +23,11 @@ class ImportFilterInterface(object):
 		for k, v in mdRaw.items():
 			k_clean = k.replace(' ', '-').lower()
 			if k_clean in self.myValidTagNames:
-				mdConv['x-object-meta-filter-{}-{}'.format(self.myName, k_clean)] = v.__str__()
+				if(bytes == type(v)):
+					val = v.decode(encoding='UTF-8')
+				else:
+					val = v.__str__()
+				mdConv['x-object-meta-filter-{}-{}'.format(self.myName, k_clean)] = val
 		return mdConv
 
 	def extractMetaData(self, obj):
