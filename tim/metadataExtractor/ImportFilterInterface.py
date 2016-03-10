@@ -4,6 +4,7 @@ Created on Jan 19, 2016
 @author: tim
 '''
 import logging
+import urllib
 
 
 class ImportFilterInterface(object):
@@ -27,6 +28,7 @@ class ImportFilterInterface(object):
 					val = v.decode(encoding='UTF-8')
 				else:
 					val = v.__str__()
+				val = urllib.parse.quote(val)
 				mdConv['x-object-meta-filter-{}-{}'.format(self.myName, k_clean)] = val
 		return mdConv
 
