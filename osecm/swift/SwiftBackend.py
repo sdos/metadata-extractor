@@ -3,19 +3,18 @@
 '''
 Created on Mar 17, 2015
 
-@author: tim
+@author: osecm
 '''
 import logging
 import swiftclient
 import io
-from tim.swift.SwiftConfig import swift_url, swift_user, swift_pw
 
 class SwiftBackend(object):
 	'''
 	classdocs
 	'''
 	
-	def __init__(self):
+	def __init__(self, swift_url, swift_user, swift_pw):
 		'''
 		Constructor
 		'''

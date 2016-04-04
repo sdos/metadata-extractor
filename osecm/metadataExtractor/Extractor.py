@@ -1,21 +1,21 @@
 '''
 Created on Jan 19, 2016
 
-@author: tim
+@author: osecm
 '''
 import logging
-from tim.metadataExtractor.ImportFilterImages import ImportFilterBmp
-from tim.metadataExtractor.ImportFilterImages import ImportFilterGif
-from tim.metadataExtractor.ImportFilterImages import ImportFilterJpeg
-from tim.metadataExtractor.ImportFilterImages import ImportFilterPng
-from tim.metadataExtractor.ImportFilterImages import ImportFilterTiff
-from tim.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
-from tim.swift.SwiftBackend import SwiftBackend
+from osecm.metadataExtractor.ImportFilterImages import ImportFilterBmp
+from osecm.metadataExtractor.ImportFilterImages import ImportFilterGif
+from osecm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
+from osecm.metadataExtractor.ImportFilterImages import ImportFilterPng
+from osecm.metadataExtractor.ImportFilterImages import ImportFilterTiff
+from osecm.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
+from osecm.swift.SwiftBackend import SwiftBackend
 import swiftclient.multithreading
 import concurrent.futures
-from tim.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
-from tim.metadataExtractor.Exceptions import NoFilterFoundException
-from tim.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
+from osecm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
+from osecm.metadataExtractor.Exceptions import NoFilterFoundException
+from osecm.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
 
 
 class Extractor(object):
@@ -34,14 +34,14 @@ class Extractor(object):
 	mapping[ImportFilterEmail.myContentType] = ImportFilterEmail
 	mapping[ImportFilterPDF.myContentType] = ImportFilterPDF
 
-	def __init__(self, containerName):
+	def __init__(self, containerName, swift_url, swift_user, swift_pw):
 		'''
 		Constructor
 		'''
 		self.log = logging.getLogger()
 		self.containerName = containerName
 		self.log.info('initializing...')
-		self.sb = SwiftBackend()
+		self.sb = SwiftBackend(swift_url=swift_url, swift_user=swift_user, swift_pw=swift_pw)
 		self.numWorkers = 20
 
 	def getFilterForObjType(self, objType):

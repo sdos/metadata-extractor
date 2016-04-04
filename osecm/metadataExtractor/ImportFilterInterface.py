@@ -1,7 +1,7 @@
 '''
 Created on Jan 19, 2016
 
-@author: tim
+@author: osecm
 '''
 import logging
 import urllib

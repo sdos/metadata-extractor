@@ -3,7 +3,7 @@ Created on Feb 18, 2016
 
 @author: Christoph Trybek
 '''
-from tim.metadataExtractor.ImportFilterInterface import ImportFilterInterface
+from osecm.metadataExtractor.ImportFilterInterface import ImportFilterInterface
 import exifread
 from PIL import Image
 

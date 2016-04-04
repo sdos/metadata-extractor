@@ -1,7 +1,7 @@
 '''
 Created on Jan 29, 2016
 
-@author: tim
+@author: osecm
 '''
 
 import magic

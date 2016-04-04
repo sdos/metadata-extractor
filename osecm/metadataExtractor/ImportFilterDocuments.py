@@ -2,7 +2,7 @@
 Created on Feb 18, 2016
 '''
 
-from tim.metadataExtractor.ImportFilterInterface import ImportFilterInterface
+from osecm.metadataExtractor.ImportFilterInterface import ImportFilterInterface
 from email.parser import BytesParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser

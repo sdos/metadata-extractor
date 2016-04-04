@@ -1,7 +1,7 @@
 '''
 Created on Feb 11, 2016
 
-@author: tim
+@author: osecm
 '''
 
 class NoFilterFoundException(Exception):
