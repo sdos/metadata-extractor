@@ -46,6 +46,10 @@ class Extractor(object):
 
 	def getFilterForObjType(self, objType):
 		return self.mapping[objType]()
+	
+	def dummyLoad(self, conn, objType, objName):
+		print(objName)
+		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
 
 	def getDataAndIdentifyContentType(self, conn, objType, objName):
 		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
@@ -115,3 +119,6 @@ class Extractor(object):
 
 	def runIdentifierForWholeContainer(self):
 		self.runForWholeContainer(functionOnObject=self.getDataAndIdentifyContentType)
+		
+	def runDummyLoad(self):
+		self.runForWholeContainer(functionOnObject=self.dummyLoad)
