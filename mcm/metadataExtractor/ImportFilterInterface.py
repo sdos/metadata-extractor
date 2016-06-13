@@ -1,8 +1,16 @@
-'''
-Created on Jan 19, 2016
+#!/usr/bin/python
+# coding=utf-8
 
-@author: osecm
-'''
+"""
+	Project MCM - Micro Content Management
+	Metadata Extractor - identify content type, extract metadata with specific filter plugins
+
+
+	Copyright (C) <2016> Tim Waizenegger, <University of Stuttgart>
+
+	This software may be modified and distributed under the terms
+	of the MIT license.  See the LICENSE file for details.
+"""
 import logging
 import urllib
 
@@ -24,7 +32,7 @@ class ImportFilterInterface(object):
 		for k, v in mdRaw.items():
 			k_clean = k.replace(' ', '-').lower()
 			if k_clean in self.myValidTagNames:
-				if(bytes == type(v)):
+				if (bytes == type(v)):
 					val = v.decode(encoding='UTF-8')
 				else:
 					val = v.__str__()

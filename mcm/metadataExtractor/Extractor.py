@@ -1,21 +1,29 @@
-'''
-Created on Jan 19, 2016
+#!/usr/bin/python
+# coding=utf-8
 
-@author: osecm
-'''
+"""
+	Project MCM - Micro Content Management
+	Metadata Extractor - identify content type, extract metadata with specific filter plugins
+
+
+	Copyright (C) <2016> Tim Waizenegger, <University of Stuttgart>
+
+	This software may be modified and distributed under the terms
+	of the MIT license.  See the LICENSE file for details.
+"""
 import logging
-from osecm.metadataExtractor.ImportFilterImages import ImportFilterBmp
-from osecm.metadataExtractor.ImportFilterImages import ImportFilterGif
-from osecm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
-from osecm.metadataExtractor.ImportFilterImages import ImportFilterPng
-from osecm.metadataExtractor.ImportFilterImages import ImportFilterTiff
-from osecm.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
-from osecm.swift.SwiftBackend import SwiftBackend
+from mcm.metadataExtractor.ImportFilterImages import ImportFilterBmp
+from mcm.metadataExtractor.ImportFilterImages import ImportFilterGif
+from mcm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
+from mcm.metadataExtractor.ImportFilterImages import ImportFilterPng
+from mcm.metadataExtractor.ImportFilterImages import ImportFilterTiff
+from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
+from mcm.swift.SwiftBackend import SwiftBackend
 import swiftclient.multithreading
 import concurrent.futures
-from osecm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
-from osecm.metadataExtractor.Exceptions import NoFilterFoundException
-from osecm.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
+from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
+from mcm.metadataExtractor.Exceptions import NoFilterFoundException
+from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
 
 
 class Extractor(object):
@@ -46,7 +54,7 @@ class Extractor(object):
 
 	def getFilterForObjType(self, objType):
 		return self.mapping[objType]()
-	
+
 	def dummyLoad(self, conn, objType, objName):
 		print(objName)
 		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
@@ -57,7 +65,7 @@ class Extractor(object):
 		if objType == ctype:
 			return "same same..."
 		return self.sb.updateObjContentType(conn, containerName=self.containerName, objName=objName,
-											newContentType=ctype)
+		                                    newContentType=ctype)
 
 	def getDataAndRunFilter(self, conn, objType, objName):
 		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
@@ -70,7 +78,7 @@ class Extractor(object):
 
 	def runForWholeContainer(self, functionOnObject):
 		with swiftclient.multithreading.ConnectionThreadPoolExecutor(self.sb._getConnection,
-																	 max_workers=self.numWorkers) as executor:
+		                                                             max_workers=self.numWorkers) as executor:
 			objs = self.sb.get_object_list(self.containerName)
 			future_results = []
 
@@ -82,7 +90,7 @@ class Extractor(object):
 					thisObjName = thisObj['name']
 
 					self.log.info('running {} for type : {} on obj: {}'.format(functionOnObject.__name__, thisObjType,
-																			   thisObjName))
+					                                                           thisObjName))
 					future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
 				except Exception as exc:
 					self.log.warning('could not create job for obj: {}. Exc: {}'.format(thisObj, exc))
@@ -106,19 +114,19 @@ class Extractor(object):
 					self.log.info('worker succeeded on obj: {}'.format(data))
 			self.log.error('Workers done!')
 			self.log.error('OK: {}, failed: {}, no filter: {} -- total: {}, fail rate: {}%, missing: {} '
-						   .format(numOkJobs,
-								   numFailedJobs,
-								   numNoFilter,
-								   (numOkJobs + numFailedJobs + numNoFilter),
-								   ((100 / (numOkJobs + numFailedJobs)) * numFailedJobs) if (
-									   (numOkJobs + numFailedJobs) > 0) else 0,
-								   len(objs) - (numOkJobs + numFailedJobs + numNoFilter)))
+			               .format(numOkJobs,
+			                       numFailedJobs,
+			                       numNoFilter,
+			                       (numOkJobs + numFailedJobs + numNoFilter),
+			                       ((100 / (numOkJobs + numFailedJobs)) * numFailedJobs) if (
+				                       (numOkJobs + numFailedJobs) > 0) else 0,
+			                       len(objs) - (numOkJobs + numFailedJobs + numNoFilter)))
 
 	def runFilterForWholeContainer(self):
 		self.runForWholeContainer(functionOnObject=self.getDataAndRunFilter)
 
 	def runIdentifierForWholeContainer(self):
 		self.runForWholeContainer(functionOnObject=self.getDataAndIdentifyContentType)
-		
+
 	def runDummyLoad(self):
 		self.runForWholeContainer(functionOnObject=self.dummyLoad)

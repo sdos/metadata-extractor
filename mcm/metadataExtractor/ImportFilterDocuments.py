@@ -1,8 +1,18 @@
-'''
-Created on Feb 18, 2016
-'''
+#!/usr/bin/python
+# coding=utf-8
 
-from osecm.metadataExtractor.ImportFilterInterface import ImportFilterInterface
+"""
+	Project MCM - Micro Content Management
+	Metadata Extractor - identify content type, extract metadata with specific filter plugins
+
+
+	Copyright (C) <2016> Tim Waizenegger, <University of Stuttgart>
+
+	This software may be modified and distributed under the terms
+	of the MIT license.  See the LICENSE file for details.
+"""
+
+from mcm.metadataExtractor.ImportFilterInterface import ImportFilterInterface
 from email.parser import BytesParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser
@@ -45,13 +55,13 @@ class ImportFilterEmail(ImportFilterInterface):
 	myContentType = 'text/plain'
 
 	myValidTagNames = ['content-transfer-encoding',
-					   'to',
-					   'from',
-					   'subject',
-					   'date',
-					   'x-bcc',
-					   'x-cc'
-					   ]
+	                   'to',
+	                   'from',
+	                   'subject',
+	                   'date',
+	                   'x-bcc',
+	                   'x-cc'
+	                   ]
 
 	def __init__(self):
 		'''

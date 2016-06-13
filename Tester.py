@@ -1,15 +1,23 @@
-'''
-Created on Jan 19, 2016
+#!/usr/bin/python
+# coding=utf-8
 
-@author: osecm
-'''
+"""
+	Project MCM - Micro Content Management
+	Metadata Extractor - identify content type, extract metadata with specific filter plugins
+
+
+	Copyright (C) <2016> Tim Waizenegger, <University of Stuttgart>
+
+	This software may be modified and distributed under the terms
+	of the MIT license.  See the LICENSE file for details.
+"""
 import logging
-from osecm.metadataExtractor.Extractor import Extractor
+from mcm.metadataExtractor.Extractor import Extractor
 
 # log lvls: DEBUG - INFO - WARNING - ERROR - CRITICAL
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-containerName = 'hallo'
+containerName = 'sdosTest1.sdos'
 swift_url = "http://192.168.209.204:8080/auth/v1.0"
 swift_user = "test:tester"
 swift_pw = "testing"
@@ -21,7 +29,7 @@ if __name__ == '__main__':
 	log.error('starting metadata extractor tester')
 
 	ex.runIdentifierForWholeContainer()
-	#ex.runFilterForWholeContainer()
-	#ex.runDummyLoad()
+	# ex.runFilterForWholeContainer()
+	# ex.runDummyLoad()
 
 	log.error('DONE')

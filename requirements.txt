@@ -1,0 +1,9 @@
+chardet==2.3.0
+ExifRead==2.1.2
+futures==3.0.5
+pdfminer.six==20160202
+Pillow==3.2.0
+python-magic==0.4.11
+python-swiftclient==3.0.0
+requests==2.10.0
+six==1.10.0
