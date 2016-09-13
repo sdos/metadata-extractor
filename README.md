@@ -4,12 +4,17 @@ Metadata Extractor - part of the Micro Content Management system (MCM)
 
 MCM consists of multiple components that form a small content management system.
 
-This repo contains the metadata extractor.
+### The other parts of the MCM project are
+* [Bluebox web-UI](https://github.com/timwaizenegger/mcm-bluebox)
+* [SDOS (Secure Delete Object Store) Cryptographic Deletion](https://github.com/timwaizenegger/mcm-sdos)
+* [Metadata Extractor](https://github.com/timwaizenegger/mcm-metadataExtractor)
+* [Retention Manager](https://github.com/timwaizenegger/mcm-retentionManager)
+
+
+### This repo contains the metadata extractor.
 
 extracts metadata from various file types. reads files from swift and writes structured metadata back
 
-
-##  Micro Content Management MCM was formerly known as OSECM
 
 ### configuration
 is currently done by setting parameters in
