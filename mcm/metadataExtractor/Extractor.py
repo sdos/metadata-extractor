@@ -89,7 +89,7 @@ class Extractor(object):
 					thisObjType = thisObj['content_type']
 					thisObjName = thisObj['name']
 
-					self.log.info('running {} for type : {} on obj: {}'.format(functionOnObject.__name__, thisObjType,
+					self.log.info('running {} for type: {} on obj: {}'.format(functionOnObject.__name__, thisObjType,
 					                                                           thisObjName))
 					future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
 				except Exception as exc:
