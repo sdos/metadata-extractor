@@ -11,7 +11,16 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-
 import logging
-from mcm.metadataExtractor import configuration
-logging.basicConfig(level=configuration.log_level, format=configuration.log_format)
+from mcm.metadataExtractor.TaskListener import Tasklistener
+
+
+log = logging.getLogger()
+r = Tasklistener()
+
+if __name__ == '__main__':
+	log.error('starting metadata extractor task listener')
+
+	r.consumeMsgs()
+
+	log.error('DONE')
