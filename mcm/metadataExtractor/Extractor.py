@@ -42,14 +42,17 @@ class Extractor(object):
 	mapping[ImportFilterEmail.myContentType] = ImportFilterEmail
 	mapping[ImportFilterPDF.myContentType] = ImportFilterPDF
 
-	def __init__(self, containerName, swift_url, swift_user, swift_pw):
+	def __init__(self, containerName, swift_url = None, swift_user = None, swift_pw = None, storage_url = None, token = None):
 		'''
 		Constructor
 		'''
 		self.log = logging.getLogger()
 		self.containerName = containerName
 		self.log.info('initializing...')
-		self.sb = SwiftBackend(swift_url=swift_url, swift_user=swift_user, swift_pw=swift_pw)
+		if storage_url and token:
+			self.sb = SwiftBackend(storage_url = storage_url, token = token)
+		else:
+			self.sb = SwiftBackend(swift_url=swift_url, swift_user=swift_user, swift_pw=swift_pw)
 		self.numWorkers = 20
 
 	def getFilterForObjType(self, objType):

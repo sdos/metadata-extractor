@@ -15,14 +15,17 @@ import logging, json, time
 from threading import Thread
 
 from mcm.metadataExtractor import configuration
+from mcm.metadataExtractor.Extractor import Extractor
 from kafka import KafkaConsumer, KafkaProducer
 
 kafka_timeout = 10
 """
 Message definition
 """
-valid_task_types = {"identify_content": "Identify content types",
-						"extract_metadata": "Extract metadata"}
+tt_0 = "identify_content"
+tt_1 = "extract_metadata"
+valid_task_types = {tt_0: "Identify content types",
+						tt_1: "Extract metadata"}
 
 
 """
@@ -52,7 +55,7 @@ class Tasklistener(object):
 				if not j["type"] in valid_task_types:
 					logging.warning("msg type not ours")
 					continue
-				t = TaskRunner(configuration.swift_tenant, j["type"], j["container"], j["correlation"])
+				t = TaskRunner(configuration.swift_tenant, j["token"], j["type"], j["container"], j["correlation"])
 				t.start()
 			except Exception:
 				logging.exception("error consuming message")
@@ -62,9 +65,10 @@ class TaskRunner(Thread):
 	'''
 	gets instantiated in a new thread to process one message
 	'''
-	def __init__(self, tenant, type, container, correlation):
+	def __init__(self, tenant, token, type, container, correlation):
 		Thread.__init__(self)
 		self.tenant = tenant
+		self.token = token
 		self.type = type
 		self.container = container
 		self.correlation = correlation
@@ -79,6 +83,15 @@ class TaskRunner(Thread):
 	def run(self):
 		logging.info("running task...")
 		self.__notifySender("running task")
+		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
+		print(self.type)
+		print(list(valid_task_types.keys()))
+		if self.type == tt_0:
+			ex.runIdentifierForWholeContainer()
+		elif self.type == tt_1:
+			ex.runFilterForWholeContainer()
+		else:
+			self.__notifySender("task type is not known")
 
 
 	def __notifySender(self, msg):

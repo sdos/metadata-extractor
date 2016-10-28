@@ -21,7 +21,7 @@ class SwiftBackend(object):
 	classdocs
 	'''
 
-	def __init__(self, swift_url, swift_user, swift_pw):
+	def __init__(self, swift_user=None, swift_pw=None, swift_url=None, token=None, storage_url=None):
 		'''
 		Constructor
 		'''
@@ -30,11 +30,18 @@ class SwiftBackend(object):
 		self.authurl = swift_url
 		self.user = swift_user
 		self.key = swift_pw
+		self.token = token
+		self.storage_url = storage_url
 
 	###############################################################################
 	###############################################################################
 
 	def _getConnection(self):
+		if self.token and self.storage_url:
+			return swiftclient.client.Connection(
+				preauthtoken=self.token,
+				preauthurl=self.storage_url
+			)
 		return swiftclient.client.Connection(authurl=self.authurl, user=self.user, key=self.key, retries=1,
 		                                     insecure='true')
 
@@ -57,7 +64,7 @@ class SwiftBackend(object):
 	def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
 		self.log.debug(
 			"Retrieving list of all objects of container: {} with parameter: limit = {}, marker = {}, prefix = {}"
-			.format(container_name, limit, marker, prefix))
+				.format(container_name, limit, marker, prefix))
 		conn = self._getConnection()
 		full_listing = limit is None  # bypass default limit of 10.000 of swift-client
 		files = conn.get_container(
