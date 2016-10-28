@@ -12,6 +12,8 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 import logging, json
+from threading import Thread
+
 from mcm.metadataExtractor import configuration
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -51,15 +53,17 @@ class Tasklistener(object):
 					logging.warning("msg type not ours")
 					continue
 				t = TaskRunner(configuration.swift_tenant, j["type"], j["container"], j["correlation"])
+				t.start()
 			except Exception:
 				logging.exception("error consuming message")
 
 
-class TaskRunner(object):
+class TaskRunner(Thread):
 	'''
 	gets instantiated in a new thread to process one message
 	'''
 	def __init__(self, tenant, type, container, correlation):
+		Thread.__init__(self)
 		self.tenant = tenant
 		self.type = type
 		self.container = container
@@ -72,7 +76,9 @@ class TaskRunner(object):
 			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
 		self.__notifySender("starting task {}".format(type))
 
-
+	def run(self):
+		logging.info("running task...")
+		self.__notifySender("running task {}".format(type))
 
 
 	def __notifySender(self, msg):
