@@ -11,7 +11,7 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import logging, json
+import logging, json, time
 from threading import Thread
 
 from mcm.metadataExtractor import configuration
@@ -78,7 +78,7 @@ class TaskRunner(Thread):
 
 	def run(self):
 		logging.info("running task...")
-		self.__notifySender("running task {}".format(type))
+		self.__notifySender("running task")
 
 
 	def __notifySender(self, msg):
