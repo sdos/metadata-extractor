@@ -114,22 +114,23 @@ class Extractor(object):
 					numFailedJobs += 1
 				else:
 					numOkJobs += 1
-					self.log.info('worker succeeded on obj: {}'.format(data))
-			self.log.error('Workers done!')
-			self.log.error('OK: {}, failed: {}, no filter: {} -- total: {}, fail rate: {}%, missing: {} '
-			               .format(numOkJobs,
+					self.log.debug('worker succeeded on obj: {}'.format(data))
+			self.log.warning('Workers done!')
+			msg = 'OK: {}, failed: {}, no filter: {} -- total: {}, fail rate: {}%, missing: {} '.format(numOkJobs,
 			                       numFailedJobs,
 			                       numNoFilter,
 			                       (numOkJobs + numFailedJobs + numNoFilter),
 			                       ((100 / (numOkJobs + numFailedJobs)) * numFailedJobs) if (
 				                       (numOkJobs + numFailedJobs) > 0) else 0,
-			                       len(objs) - (numOkJobs + numFailedJobs + numNoFilter)))
+			                       len(objs) - (numOkJobs + numFailedJobs + numNoFilter))
+			self.log.warning(msg)
+			return msg
 
 	def runFilterForWholeContainer(self):
-		self.runForWholeContainer(functionOnObject=self.getDataAndRunFilter)
+		return self.runForWholeContainer(functionOnObject=self.getDataAndRunFilter)
 
 	def runIdentifierForWholeContainer(self):
-		self.runForWholeContainer(functionOnObject=self.getDataAndIdentifyContentType)
+		return self.runForWholeContainer(functionOnObject=self.getDataAndIdentifyContentType)
 
 	def runDummyLoad(self):
-		self.runForWholeContainer(functionOnObject=self.dummyLoad)
+		return self.runForWholeContainer(functionOnObject=self.dummyLoad)

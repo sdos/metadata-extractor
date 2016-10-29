@@ -76,20 +76,22 @@ class TaskRunner(Thread):
 			bootstrap_servers=configuration.kafka_broker_endpoint,
 			value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
-		logging.info(
+		logging.debug(
 			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
-		self.__notifySender("starting task {}".format(type))
 
 	def run(self):
-		logging.info("running task...")
-		self.__notifySender("running task")
+		m = 'starting task {} on container {}'.format(self.type, self.container)
+		logging.debug(m)
+		self.__notifySender(m)
 		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
 		print(self.type)
 		print(list(valid_task_types.keys()))
 		if self.type == tt_0:
-			ex.runIdentifierForWholeContainer()
+			s = ex.runIdentifierForWholeContainer()
+			self.__notifySender("task {} finished: {}".format(tt_0, s))
 		elif self.type == tt_1:
-			ex.runFilterForWholeContainer()
+			s = ex.runFilterForWholeContainer()
+			self.__notifySender("task {} finished: {}".format(tt_1, s))
 		else:
 			self.__notifySender("task type is not known")
 
