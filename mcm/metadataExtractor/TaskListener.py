@@ -88,16 +88,14 @@ class TaskRunner(Thread):
 		print(list(valid_task_types.keys()))
 		if self.type == tt_0:
 			s = ex.runIdentifierForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(tt_0, s))
+			self.__notifySender("task {} finished: {}".format(tt_0, s), type="success")
 		elif self.type == tt_1:
 			s = ex.runFilterForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(tt_1, s))
-		else:
-			self.__notifySender("task type is not known")
+			self.__notifySender("task {} finished: {}".format(tt_1, s), type="success")
 
 
-	def __notifySender(self, msg):
-		j = {"type" : "response",
+	def __notifySender(self, msg, type="response"):
+		j = {"type" : type,
 		     "correlation" : self.correlation,
 		     "message" : msg}
 		self.kafka_producer.send(self.tenant, j).get(timeout=kafka_timeout)
