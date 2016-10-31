@@ -28,8 +28,6 @@ tt_1 = "extract_metadata"
 valid_task_types = {tt_0: "Identify content types",
                     tt_1: "Extract metadata"}
 
-# without timeout the consumer will wait forever for new msgs
-kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
 """
 
 Helpers
@@ -51,7 +49,10 @@ class Tasklistener(object):
 
 	def __init__(self):
 		logging.warning("starting task listener")
-		self.topic = kc.topics[configuration.swift_tenant.encode('utf-8')]
+
+		# without timeout the consumer will wait forever for new msgs
+		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
+		self.topic = self.kc.topics[configuration.swift_tenant.encode('utf-8')]
 
 		consumer_group = 'mcmextractor-{}'.format(configuration.swift_tenant).encode('utf-8')
 		consumer_id = 'mcmextractor-1'.encode('utf-8')
@@ -77,8 +78,9 @@ class Tasklistener(object):
 				t = TaskRunner(configuration.swift_tenant, j["token"], j["type"], j["container"], j["correlation"])
 				t.start()
 			except Exception:
+				self.consumer.stop()
 				logging.exception("error consuming message")
-
+		self.consumer.stop()
 
 class TaskRunner(Thread):
 	'''
@@ -93,7 +95,9 @@ class TaskRunner(Thread):
 		self.type = type
 		self.container = container
 		self.correlation = correlation
-		self.topic = kc.topics[tenant.encode('utf-8')]
+		# without timeout the consumer will wait forever for new msgs
+		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
+		self.topic = self.kc.topics[configuration.swift_tenant.encode('utf-8')]
 
 		logging.debug(
 			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
