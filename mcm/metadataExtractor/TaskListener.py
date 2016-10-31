@@ -115,5 +115,5 @@ class TaskRunner(Thread):
 		j = {"type": type,
 		     "correlation": self.correlation,
 		     "message": msg}
-		with self.topic.get_sync_producer() as producer:
+		with self.topic.get_producer() as producer:
 			producer.produce(value_serializer(j))
