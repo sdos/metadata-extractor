@@ -11,7 +11,7 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import logging, json, time
+import logging, json, os, socket
 from threading import Thread
 
 from pykafka.common import OffsetType
@@ -87,6 +87,7 @@ class TaskRunner(Thread):
 
 	def __init__(self, tenant, token, type, container, correlation):
 		Thread.__init__(self)
+		self.worker_id = "{}-{}".format(socket.getfqdn(), os.getpid())
 		self.tenant = tenant
 		self.token = token
 		self.type = type
@@ -114,6 +115,7 @@ class TaskRunner(Thread):
 	def __notifySender(self, msg, type="response"):
 		j = {"type": type,
 		     "correlation": self.correlation,
-		     "message": msg}
+		     "message": msg,
+		     "worker": self.worker_id}
 		with self.topic.get_producer() as producer:
 			producer.produce(value_serializer(j))
