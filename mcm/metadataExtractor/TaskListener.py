@@ -107,8 +107,6 @@ class TaskRunner(Thread):
 		logging.info(m)
 		self.__notifySender(m)
 		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
-		print(self.type)
-		print(list(valid_task_types.keys()))
 		if self.type == tt_0:
 			s = ex.runIdentifierForWholeContainer()
 			self.__notifySender("task {} finished: {}".format(tt_0, s), type="success")
