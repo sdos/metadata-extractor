@@ -26,4 +26,9 @@ class ContentTypeIdentifier(object):
 		'''
 
 	def identifyContentType(self, obj):
-		return magic.from_buffer(obj.getvalue(), mime=True).decode(encoding='utf-8', errors='strict')
+		mime = magic.from_buffer(obj.getvalue(), mime=True)
+		if type(mime) is bytes:
+			return mime.decode(encoding='utf-8', errors='strict')
+		else:
+			return mime
+
