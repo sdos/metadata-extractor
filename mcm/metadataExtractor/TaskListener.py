@@ -14,41 +14,59 @@
 import logging, json, time
 from threading import Thread
 
+from pykafka.common import OffsetType
+
 from mcm.metadataExtractor import configuration
 from mcm.metadataExtractor.Extractor import Extractor
-from kafka import KafkaConsumer, KafkaProducer
+from pykafka import KafkaClient
 
-kafka_timeout = 10
 """
 Message definition
 """
 tt_0 = "identify_content"
 tt_1 = "extract_metadata"
 valid_task_types = {tt_0: "Identify content types",
-						tt_1: "Extract metadata"}
+                    tt_1: "Extract metadata"}
 
-
+# without timeout the consumer will wait forever for new msgs
+kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
 """
+
 Helpers
 """
+value_serializer = lambda v: json.dumps(v).encode('utf-8')
+
+
+def __try_parse_msg_content(m):
+	try:
+		return json.loads(m.value.decode("utf-8"))
+	except Exception as e:
+		return {"type": "Error", "error": "msg parsing failed"}
+
 
 class Tasklistener(object):
 	'''
 	listen for messages on kafka and run the identifier/extractor
 	'''
+
 	def __init__(self):
 		logging.warning("starting task listener")
+		self.topic = kc.topics[configuration.swift_tenant.encode('utf-8')]
 
-		# without timeout the consumer will wait forever for new msgs
-		self.c = KafkaConsumer(configuration.swift_tenant,
-		                  bootstrap_servers=configuration.kafka_broker_endpoint,
-		                  client_id='mcmextractor',
-		                  group_id='mcmextractor-{}'.format(configuration.swift_tenant),
-		                  enable_auto_commit=False)
+		consumer_group = 'mcmextractor-{}'.format(configuration.swift_tenant).encode('utf-8')
+		consumer_id = 'mcmextractor-1'.encode('utf-8')
 
+		"""
+		we consume only NEW messages; set reset_offset_on_start=False to use gloabl offset.
+
+		"""
+		self.consumer = self.topic.get_simple_consumer(consumer_group=consumer_group, consumer_id=consumer_id,
+		                                               auto_commit_enable=True,
+		                                               auto_offset_reset=OffsetType.LATEST,
+		                                               reset_offset_on_start=True)
 
 	def consumeMsgs(self):
-		for m in self.c:
+		for m in self.consumer:
 			logging.info("got msg: {}".format(m))
 			try:
 				j = json.loads(m.value.decode("utf-8"))
@@ -65,6 +83,7 @@ class TaskRunner(Thread):
 	'''
 	gets instantiated in a new thread to process one message
 	'''
+
 	def __init__(self, tenant, token, type, container, correlation):
 		Thread.__init__(self)
 		self.tenant = tenant
@@ -72,9 +91,7 @@ class TaskRunner(Thread):
 		self.type = type
 		self.container = container
 		self.correlation = correlation
-		self.kafka_producer = KafkaProducer(
-			bootstrap_servers=configuration.kafka_broker_endpoint,
-			value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+		self.topic = kc.topics[tenant.encode('utf-8')]
 
 		logging.debug(
 			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
@@ -93,10 +110,9 @@ class TaskRunner(Thread):
 			s = ex.runFilterForWholeContainer()
 			self.__notifySender("task {} finished: {}".format(tt_1, s), type="success")
 
-
 	def __notifySender(self, msg, type="response"):
-		j = {"type" : type,
-		     "correlation" : self.correlation,
-		     "message" : msg}
-		self.kafka_producer.send(self.tenant, j).get(timeout=kafka_timeout)
-
+		j = {"type": type,
+		     "correlation": self.correlation,
+		     "message": msg}
+		with self.topic.get_sync_producer() as producer:
+			producer.produce(value_serializer(j))
