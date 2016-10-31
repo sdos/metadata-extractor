@@ -11,22 +11,22 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
-import logging, json, os, socket
+import json
+import logging
+import os
+import socket
 from threading import Thread
 
+from pykafka import KafkaClient
 from pykafka.common import OffsetType
 
 from mcm.metadataExtractor import configuration
 from mcm.metadataExtractor.Extractor import Extractor
-from pykafka import KafkaClient
 
 """
 Message definition
 """
-tt_0 = "identify_content"
-tt_1 = "extract_metadata"
-valid_task_types = {tt_0: "Identify content types",
-                    tt_1: "Extract metadata"}
+valid_task_types = ["identify_content", "extract_metadata", "ping"]
 
 """
 
@@ -63,9 +63,9 @@ class Tasklistener(object):
 		"""
 		self.consumer = self.topic.get_balanced_consumer(zookeeper_connect=configuration.zookeeper_endpoint,
 		                                                 consumer_group=consumer_group,
-		                                               auto_commit_enable=True,
-		                                               auto_offset_reset=OffsetType.LATEST,
-		                                               reset_offset_on_start=True)
+		                                                 auto_commit_enable=True,
+		                                                 auto_offset_reset=OffsetType.LATEST,
+		                                                 reset_offset_on_start=True)
 
 	def consumeMsgs(self):
 		for m in self.consumer:
@@ -82,6 +82,7 @@ class Tasklistener(object):
 				logging.exception("error consuming message")
 		self.consumer.stop()
 
+
 class TaskRunner(Thread):
 	'''
 	gets instantiated in a new thread to process one message
@@ -92,7 +93,7 @@ class TaskRunner(Thread):
 		self.worker_id = "MCMTaskRunner-{}-{}".format(socket.getfqdn(), os.getpid())
 		self.tenant = tenant
 		self.token = token
-		self.type = type
+		self.task_type = type
 		self.container = container
 		self.correlation = correlation
 		# without timeout the consumer will wait forever for new msgs
@@ -102,21 +103,29 @@ class TaskRunner(Thread):
 		logging.info(
 			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
 
-	def run(self):
-		m = 'starting task {} on container {}'.format(self.type, self.container)
-		logging.info(m)
-		self.__notifySender(m)
-		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
-		if self.type == tt_0:
-			s = ex.runIdentifierForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(tt_0, s), type="success")
-		elif self.type == tt_1:
-			s = ex.runFilterForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(tt_1, s), type="success")
+	def __send_ping(self):
+		logging.info("pong")
+		self.__notifySender("pong", task_type="pong")
 
-	def __notifySender(self, msg, type="response"):
-		j = {"type": type,
+	def run(self):
+		if self.task_type == valid_task_types[2]:
+			self.__send_ping()
+			return
+		m = 'starting task {}'.format(self.task_type, self.container)
+		logging.info(m)
+		self.__notifySender(m, task_type="processing")
+		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
+		if self.task_type == valid_task_types[0]:
+			s = ex.runIdentifierForWholeContainer()
+			self.__notifySender("task {} finished: {}".format(valid_task_types[0], s), task_type="success")
+		elif self.task_type == valid_task_types[1]:
+			s = ex.runFilterForWholeContainer()
+			self.__notifySender("task {} finished: {}".format(valid_task_types[1], s), task_type="success")
+
+	def __notifySender(self, msg, task_type="response"):
+		j = {"type": task_type,
 		     "correlation": self.correlation,
+		     "container": self.container,
 		     "message": msg,
 		     "worker": self.worker_id}
 		logging.info(j)
