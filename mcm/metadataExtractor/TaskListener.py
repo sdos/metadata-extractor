@@ -87,7 +87,7 @@ class TaskRunner(Thread):
 
 	def __init__(self, tenant, token, type, container, correlation):
 		Thread.__init__(self)
-		self.worker_id = "{}-{}".format(socket.getfqdn(), os.getpid())
+		self.worker_id = "MCMTaskRunner-{}-{}".format(socket.getfqdn(), os.getpid())
 		self.tenant = tenant
 		self.token = token
 		self.type = type
