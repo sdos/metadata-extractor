@@ -26,7 +26,7 @@ from mcm.metadataExtractor.Extractor import Extractor
 """
 Message definition
 """
-valid_task_types = ["identify_content", "extract_metadata", "ping"]
+valid_task_types = ["identify_content", "extract_metadata", "ping", "dispose"]
 
 """
 
@@ -107,6 +107,17 @@ class TaskRunner(Thread):
 		logging.info("pong")
 		self.__notifySender("pong", task_type="pong")
 
+	def __dispatch_task_type(self):
+		if self.task_type in valid_task_types:
+			ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
+			if self.task_type == valid_task_types[0]:
+				s = ex.runIdentifierForWholeContainer()
+			elif self.task_type == valid_task_types[1]:
+				s = ex.runFilterForWholeContainer()
+			elif self.task_type == valid_task_types[3]:
+				s="DELETED, TRUST ME!"
+			self.__notifySender("task {} finished: {}".format(self.task_type, s), task_type="success")
+
 	def run(self):
 		if self.task_type == valid_task_types[2]:
 			self.__send_ping()
@@ -114,13 +125,7 @@ class TaskRunner(Thread):
 		m = 'starting task {}'.format(self.task_type, self.container)
 		logging.info(m)
 		self.__notifySender(m, task_type="processing")
-		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
-		if self.task_type == valid_task_types[0]:
-			s = ex.runIdentifierForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(valid_task_types[0], s), task_type="success")
-		elif self.task_type == valid_task_types[1]:
-			s = ex.runFilterForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(valid_task_types[1], s), task_type="success")
+		self.__dispatch_task_type()
 
 	def __notifySender(self, msg, task_type="response"):
 		j = {"type": task_type,
