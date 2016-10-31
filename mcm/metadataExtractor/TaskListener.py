@@ -69,11 +69,11 @@ class Tasklistener(object):
 
 	def consumeMsgs(self):
 		for m in self.consumer:
-			logging.info("got msg: {}".format(m))
+			logging.debug("got msg: {}".format(m))
 			try:
 				j = json.loads(m.value.decode("utf-8"))
 				if not j["type"] in valid_task_types:
-					logging.warning("msg type not ours")
+					logging.debug("msg type not ours")
 					continue
 				t = TaskRunner(configuration.swift_tenant, j["token"], j["type"], j["container"], j["correlation"])
 				t.start()
@@ -99,12 +99,12 @@ class TaskRunner(Thread):
 		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
 		self.topic = self.kc.topics[configuration.swift_tenant.encode('utf-8')]
 
-		logging.debug(
+		logging.info(
 			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
 
 	def run(self):
 		m = 'starting task {} on container {}'.format(self.type, self.container)
-		logging.debug(m)
+		logging.info(m)
 		self.__notifySender(m)
 		ex = Extractor(containerName=self.container, storage_url=configuration.swift_storage_url, token=self.token)
 		print(self.type)
@@ -121,5 +121,6 @@ class TaskRunner(Thread):
 		     "correlation": self.correlation,
 		     "message": msg,
 		     "worker": self.worker_id}
+		logging.info(j)
 		with self.topic.get_producer() as producer:
 			producer.produce(value_serializer(j))
