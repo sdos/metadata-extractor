@@ -16,16 +16,10 @@ import logging
 
 import swiftclient.multithreading
 
+from mcm.metadataExtractor import RetentionChecker, ImportFilter
 from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
-from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException, RetentionDateInFutureException
-from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
-from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
-from mcm.metadataExtractor.ImportFilterImages import ImportFilterBmp
-from mcm.metadataExtractor.ImportFilterImages import ImportFilterGif
-from mcm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
-from mcm.metadataExtractor.ImportFilterImages import ImportFilterPng
-from mcm.metadataExtractor.ImportFilterImages import ImportFilterTiff
-from mcm.metadataExtractor import RetentionChecker
+from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException, \
+	RetentionDateInFutureException
 from mcm.swift.SwiftBackend import SwiftBackend
 
 
@@ -33,17 +27,6 @@ class Extractor(object):
 	'''
 	classdocs
 	'''
-	mapping = dict()
-	# image filters
-	mapping[ImportFilterBmp.myContentType] = ImportFilterBmp
-	mapping[ImportFilterGif.myContentType] = ImportFilterGif
-	mapping[ImportFilterJpeg.myContentType] = ImportFilterJpeg
-	mapping[ImportFilterPng.myContentType] = ImportFilterPng
-	mapping[ImportFilterTiff.myContentType] = ImportFilterTiff
-
-	# document filters
-	mapping[ImportFilterEmail.myContentType] = ImportFilterEmail
-	mapping[ImportFilterPDF.myContentType] = ImportFilterPDF
 
 	def __init__(self, containerName, swift_url=None, swift_user=None, swift_pw=None, storage_url=None, token=None):
 		'''
@@ -57,9 +40,6 @@ class Extractor(object):
 		else:
 			self.sb = SwiftBackend(swift_url=swift_url, swift_user=swift_user, swift_pw=swift_pw)
 		self.numWorkers = 20
-
-	def getFilterForObjType(self, objType):
-		return self.mapping[objType]()
 
 	def dummyLoad(self, conn, objType, objName):
 		print(objName)
@@ -76,7 +56,7 @@ class Extractor(object):
 	def getDataAndRunFilter(self, conn, objType, objName):
 		thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
 		try:
-			thisFilter = self.getFilterForObjType(objType)
+			thisFilter = ImportFilter.getFilterForObjType(objType)
 		except:
 			raise NoFilterFoundException("{}-{}".format(objName, objType))
 		r = thisFilter.extractMetaData(thisObjBlob)
@@ -180,18 +160,14 @@ class Extractor(object):
 			len(objs) - total)
 		return msg
 
-
 	def runFilterForWholeContainer(self):
 		return self.runForWholeContainer(functionOnObject=self.getDataAndRunFilter)
-
 
 	def runIdentifierForWholeContainer(self):
 		return self.runForWholeContainer(functionOnObject=self.getDataAndIdentifyContentType)
 
-
 	def runDisposalForWholeContainer(self):
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndRunDisposal)
-
 
 	def runDummyLoad(self):
 		return self.runForWholeContainer(functionOnObject=self.dummyLoad)
