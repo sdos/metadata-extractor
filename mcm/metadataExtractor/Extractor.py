@@ -25,6 +25,7 @@ from mcm.metadataExtractor.ImportFilterImages import ImportFilterGif
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterPng
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterTiff
+from mcm.metadataExtractor import RetentionChecker
 from mcm.swift.SwiftBackend import SwiftBackend
 
 
@@ -82,7 +83,7 @@ class Extractor(object):
 		return self.sb.updateMetaDataFields(conn=conn, containerName=self.containerName, objName=objName, metaDict=r)
 
 	def getMetadataAndRunDisposal(self, conn, objType, objName):
-		raise NoRetentionDateException("{}-{}".format(objName, objType))
+		return RetentionChecker.checkRetentionDate(conn=conn, containerName=self.containerName, objectName=objName)
 
 	def runForWholeContainer(self, functionOnObject):
 		with swiftclient.multithreading.ConnectionThreadPoolExecutor(self.sb._getConnection,
