@@ -23,3 +23,25 @@ class NoFilterFoundException(Exception):
 		Constructor
 		'''
 		self.message = message
+
+class NoRetentionDateException(Exception):
+	'''
+	classdocs
+	'''
+
+	def __init__(self, message):
+		'''
+		Constructor
+		'''
+		self.message = message
+
+class RetentionDateInFutureException(Exception):
+	'''
+	classdocs
+	'''
+
+	def __init__(self, message):
+		'''
+		Constructor
+		'''
+		self.message = message

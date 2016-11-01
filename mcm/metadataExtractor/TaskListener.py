@@ -115,7 +115,7 @@ class TaskRunner(Thread):
 			elif self.task_type == valid_task_types[1]:
 				s = ex.runFilterForWholeContainer()
 			elif self.task_type == valid_task_types[3]:
-				s="DELETED, TRUST ME!"
+				s=ex.runDisposalForWholeContainer()
 			self.__notifySender("task {} finished: {}".format(self.task_type, s), task_type="success")
 
 	def run(self):
