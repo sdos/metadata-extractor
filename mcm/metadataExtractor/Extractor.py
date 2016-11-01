@@ -17,7 +17,7 @@ import logging
 import swiftclient.multithreading
 
 from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
-from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException
+from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException, RetentionDateInFutureException
 from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
 from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterBmp
@@ -120,6 +120,9 @@ class Extractor(object):
 				except NoRetentionDateException as exc:
 					self.log.info('no retention date on obj: {}'.format(exc))
 					numNoRetentionDate += 1
+				except RetentionDateInFutureException as exc:
+					self.log.info('retention date in future on obj: {}'.format(exc))
+					numRetentionInFuture += 1
 				except Exception as exc:
 					self.log.info('worker failed with exception: {}'.format(exc))
 					numFailedJobs += 1

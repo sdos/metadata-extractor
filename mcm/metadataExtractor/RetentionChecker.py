@@ -32,7 +32,7 @@ def checkRetentionDate(conn, containerName, objectName):
 		log.warning("DELETING - retention over on obj: {}-{}-{}".format(containerName, objectName, d))
 		return conn.delete_object(containerName, objectName)
 	else:
-		raise(RetentionDateInFutureException("{}-{}-{}".format(d, containerName, objectName)))
+		raise(RetentionDateInFutureException("Retention NOT expired: {}-{}-{}".format(d, containerName, objectName)))
 
 
 def getRetentionDate(conn, containerName, objectName):
