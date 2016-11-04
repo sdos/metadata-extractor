@@ -38,7 +38,7 @@ log_format = '%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s'
 """
 swift_tenant = "test"
 swift_auth_url = "http://192.168.209.204:8080/auth/v1.0"
-swift_storage_url = "http://192.168.209.204:8080/v1/AUTH_{}".format(swift_tenant)
+swift_store_url = "http://192.168.209.204:8080/v1/AUTH_{}"
 
 kafka_broker_endpoint = "192.168.209.208:9092"
 zookeeper_endpoint = "192.168.209.208:2181"
