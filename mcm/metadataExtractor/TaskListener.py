@@ -65,7 +65,8 @@ class Tasklistener(object):
 		                                                 consumer_group=consumer_group,
 		                                                 auto_commit_enable=True,
 		                                                 auto_offset_reset=OffsetType.LATEST,
-		                                                 reset_offset_on_start=True)
+		                                                 reset_offset_on_start=True,
+		                                                 consumer_timeout_ms=100)
 
 	def consumeMsgs(self):
 		for m in self.consumer:
@@ -135,5 +136,5 @@ class TaskRunner(Thread):
 		     "message": msg,
 		     "worker": self.worker_id}
 		logging.info(j)
-		with self.topic.get_producer() as producer:
+		with self.topic.get_producer(linger_ms=100) as producer:
 			producer.produce(value_serializer(j))
