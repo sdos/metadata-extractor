@@ -66,22 +66,23 @@ class Tasklistener(object):
 		                                                 auto_commit_enable=True,
 		                                                 auto_offset_reset=OffsetType.LATEST,
 		                                                 reset_offset_on_start=True,
-		                                                 consumer_timeout_ms=100)
+		                                                 consumer_timeout_ms=-1)
 
 	def consumeMsgs(self):
-		for m in self.consumer:
-			logging.debug("got msg: {}".format(m))
+		while True:
+			msg = self.consumer.consume(block=True)
+			if not msg:
+				continue
+			logging.debug("got msg: {}".format(msg))
 			try:
-				j = json.loads(m.value.decode("utf-8"))
+				j = json.loads(msg.value.decode("utf-8"))
 				if not j["type"] in valid_task_types:
 					logging.debug("msg type not ours")
 					continue
 				t = TaskRunner(configuration.swift_tenant, j["token"], j["type"], j["container"], j["correlation"])
 				t.start()
 			except Exception:
-				self.consumer.stop()
 				logging.exception("error consuming message")
-		self.consumer.stop()
 
 
 class TaskRunner(Thread):
