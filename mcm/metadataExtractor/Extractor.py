@@ -174,11 +174,6 @@ class Extractor(object):
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndRunDisposal)
 
 	def runReplicateMetadataForWholeContainer(self):
-		'''if ":" in self.swift_user:
-			Replicator.createTablesIfNecessary(self.swift_user.split(":")[0])
-		else:
-			self.log.error("cannot create sql tables since swift_user is not in the format 'tenant:user'")
-			'''
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndReplicate)
 
 	def runDummyLoad(self):

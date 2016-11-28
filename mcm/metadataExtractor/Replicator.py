@@ -77,7 +77,7 @@ def upsertIntoDB(sqlVals,tableName):
 	for field in sqlVals.keys():
 		updateSet+="MD_"+field.replace("-","_")+"=excluded."+"MD_"+field.replace("-","_")+","
 	query=query+updateSet.rstrip(',')
-	print("sql: {}".format(query))
+	#print("sql: {}".format(query))
 	with psycopg2.connect(**configuration.metadata_warehouse_endpoint) as conn:
 		conn.autocommit = True
 		with conn.cursor() as cursor:
