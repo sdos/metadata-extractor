@@ -108,7 +108,7 @@ class Extractor(object):
 					self.log.info('retention date in future on obj: {}'.format(exc))
 					numRetentionInFuture += 1
 				except Exception as exc:
-					self.log.info('worker failed with exception: {}'.format(exc))
+					self.log.exception('worker failed with exception')
 					numFailedJobs += 1
 				else:
 					numOkJobs += 1
@@ -174,6 +174,8 @@ class Extractor(object):
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndRunDisposal)
 
 	def runReplicateMetadataForWholeContainer(self):
+		# create connection pool
+		# create tables if not exists
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndReplicate)
 
 	def runDummyLoad(self):

@@ -42,3 +42,17 @@ swift_store_url = "http://192.168.209.204:8080/v1/AUTH_{}"
 
 kafka_broker_endpoint = "192.168.209.208:9092"
 zookeeper_endpoint = "192.168.209.208:2181"
+
+
+"""
+################################################################################
+used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
+################################################################################
+"""
+metadata_warehouse_endpoint = {
+	"database": "mcm-metadata_{}".format(swift_tenant),
+	"user": "postgres",
+	"password": "testing",
+	"host": "localhost",
+	"port": "5432"
+}
