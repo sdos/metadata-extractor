@@ -26,7 +26,7 @@ from mcm.metadataExtractor.Extractor import Extractor
 """
 Message definition
 """
-valid_task_types = ["identify_content", "extract_metadata", "ping", "dispose"]
+valid_task_types = ["identify_content", "extract_metadata", "ping", "dispose", "replicate_metadata"]
 
 """
 
@@ -116,7 +116,9 @@ class TaskRunner(Thread):
 			elif self.task_type == valid_task_types[1]:
 				s = ex.runFilterForWholeContainer()
 			elif self.task_type == valid_task_types[3]:
-				s=ex.runDisposalForWholeContainer()
+				s = ex.runDisposalForWholeContainer()
+			elif self.task_type == valid_task_types[4]:
+				s = ex.runReplicateMetadataForWholeContainer()
 			self.__notifySender("task {} finished: {}".format(self.task_type, s), task_type="success")
 
 	def run(self):
