@@ -16,7 +16,7 @@ import logging
 
 import swiftclient.multithreading
 
-from mcm.metadataExtractor import RetentionChecker, ImportFilter
+from mcm.metadataExtractor import RetentionChecker, ImportFilter, Replicator
 from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
 from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException, \
 	RetentionDateInFutureException
@@ -35,6 +35,7 @@ class Extractor(object):
 		self.log = logging.getLogger()
 		self.containerName = containerName
 		self.log.info('initializing...')
+		self.swift_user=swift_user
 		if storage_url and token:
 			self.sb = SwiftBackend(storage_url=storage_url, token=token)
 		else:
@@ -64,6 +65,9 @@ class Extractor(object):
 
 	def getMetadataAndRunDisposal(self, conn, objType, objName):
 		return RetentionChecker.checkRetentionDate(conn=conn, containerName=self.containerName, objectName=objName)
+
+	def getMetadataAndReplicate(self,conn,objType,objName):
+		return Replicator.replicateMetadata(conn=conn,containerName=self.containerName,objectName=objName,objectType=objType)
 
 	def runForWholeContainer(self, functionOnObject):
 		with swiftclient.multithreading.ConnectionThreadPoolExecutor(self.sb._getConnection,
@@ -168,6 +172,9 @@ class Extractor(object):
 
 	def runDisposalForWholeContainer(self):
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndRunDisposal)
+
+	def runReplicateMetadataForWholeContainer(self):
+		return self.runForWholeContainer(functionOnObject=self.getMetadataAndReplicate)
 
 	def runDummyLoad(self):
 		return self.runForWholeContainer(functionOnObject=self.dummyLoad)
