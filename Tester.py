@@ -44,6 +44,7 @@ if __name__ == '__main__':
 	#Replicator.replicateMetadata(conn=conn,containerName=self.containerName,objectName=objName,objectType=objType)
 	#Replicator.replicateMetadata(conn=conn,containerName=containerName,objectName="DSC00712.JPG",objectType="image/jpeg")
 	ex.runReplicateMetadataForWholeContainer()
+
 	# ex.runDummyLoad()
 
 	log.error('DONE')

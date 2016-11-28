@@ -2,17 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="97138963-a51c-468a-9187-336e5e7549c1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/mcm-metadataExtractor.iml" afterPath="$PROJECT_DIR$/.idea/mcm-metadataExtractor.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Tester.py" afterPath="$PROJECT_DIR$/Tester.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mcm/metadataExtractor/Extractor.py" afterPath="$PROJECT_DIR$/mcm/metadataExtractor/Extractor.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mcm/metadataExtractor/TaskListener.py" afterPath="$PROJECT_DIR$/mcm/metadataExtractor/TaskListener.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/requirements.txt" afterPath="$PROJECT_DIR$/requirements.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mcm/metadataExtractor/Replicator.py" afterPath="$PROJECT_DIR$/mcm/metadataExtractor/Replicator.py" />
     </list>
     <ignored path="mcm-metadataExtractor.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -73,6 +66,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -83,7 +77,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">

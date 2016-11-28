@@ -16,11 +16,12 @@ import logging
 
 import swiftclient.multithreading
 
-from mcm.metadataExtractor import RetentionChecker, ImportFilter, Replicator
+from mcm.metadataExtractor import RetentionChecker, ImportFilter, Replicator, configuration
 from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
 from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException, \
 	RetentionDateInFutureException
 from mcm.swift.SwiftBackend import SwiftBackend
+import psycopg2.pool
 
 
 class Extractor(object):
@@ -67,7 +68,11 @@ class Extractor(object):
 		return RetentionChecker.checkRetentionDate(conn=conn, containerName=self.containerName, objectName=objName)
 
 	def getMetadataAndReplicate(self,conn,objType,objName):
-		return Replicator.replicateMetadata(conn=conn,containerName=self.containerName,objectName=objName,objectType=objType)
+		postgreConn=self.postgreConnPool.getconn()
+		try:
+			Replicator.replicateMetadata(conn=conn,containerName=self.containerName,objectName=objName,objectType=objType,postgreConn=postgreConn)
+		finally:
+			self.postgreConnPool.putconn(postgreConn)
 
 	def runForWholeContainer(self, functionOnObject):
 		with swiftclient.multithreading.ConnectionThreadPoolExecutor(self.sb._getConnection,
@@ -174,8 +179,16 @@ class Extractor(object):
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndRunDisposal)
 
 	def runReplicateMetadataForWholeContainer(self):
+
 		# create connection pool
-		# create tables if not exists
+		self.postgreConnPool = psycopg2.pool.ThreadedConnectionPool(5,self.numWorkers,None,**configuration.metadata_warehouse_endpoint)
+		# create tables if not exist
+		postgreConn=self.postgreConnPool.getconn()
+		try:
+			Replicator.createTablesIfAbsent(postgreConn)
+		finally:
+			self.postgreConnPool.putconn(postgreConn)
+
 		return self.runForWholeContainer(functionOnObject=self.getMetadataAndReplicate)
 
 	def runDummyLoad(self):

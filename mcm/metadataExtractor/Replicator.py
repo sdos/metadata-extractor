@@ -19,7 +19,7 @@ import psycopg2.errorcodes
 import datetime, dateutil
 
 log = logging.getLogger()
-
+colprfx="md_"
 def extractMetadataFromObject(conn,containerName,objectName,filterName,filterTags):
 	header = conn.head_object(container=containerName, obj=objectName, headers=None)
 	sqlVals = {}
@@ -39,12 +39,12 @@ def extractMetadataFromObject(conn,containerName,objectName,filterName,filterTag
 	return sqlVals
 
 
-def replicateMetadata(conn,containerName,objectName,objectType):
+def replicateMetadata(conn,containerName,objectName,objectType,postgreConn):
 	#always insert into SwiftInternal table
 	tags=["content-type", "content-length", "last-modified"]
 	sqlVals=extractMetadataFromObject(conn,containerName,objectName,"SwiftInternal",tags)
 	table=deriveTableName("SwiftInternal")
-	upsertIntoDB(sqlVals,table)
+	upsertIntoDB(sqlVals,table,postgreConn)
 
 	#try to find content type specific filter
 	try:
@@ -54,61 +54,56 @@ def replicateMetadata(conn,containerName,objectName,objectType):
 
 	#try to insert into content type specific table
 	sqlVals=extractMetadataFromObject(conn,containerName,objectName,thisFilter.myName,thisFilter.myValidTagNames)
+
 	#only insert into db if content type has been indentified and metadata has been extracted
-	if len(set(sqlVals.values()))>3:
+	if len(set(sqlVals.values()))>4:
 		table=deriveTableName(thisFilter.myName)
-		upsertIntoDB(sqlVals,table)
+		upsertIntoDB(sqlVals,table,postgreConn)
 
 	return "Metadata of {} in {} was replicated".format(objectName,containerName)
 
 def deriveTableName(filterName):
 	return "filter_" + filterName
-	#TODO sql injection via user -> tableName?
-	#if ":" in swift_user:
-	#	return "MetadataTable_{}_{}".format(swift_user.split(":")[0],filterName)
-	#else:
-	#	return "MetadataTable_{}_{}".format(swift_user,filterName)
 
-def upsertIntoDB(sqlVals,tableName):
-	#assuming sqlVals.keys() is not an user input
-	fields = (", ".join(sqlVals.keys()))
+def upsertIntoDB(sqlVals,tableName,postgreConn):
+	fields = colprfx+(", "+colprfx).join(sqlVals.keys())
 	fields = fields.replace("-","_")
 	values = ', '.join(['%%(%s)s' % x for x in sqlVals])
-	#TODO instead of ignoring conflicts, update all column data?
+
 	query = "INSERT INTO "+tableName+" "+('(%s) VALUES (%s)' % (fields, values))+" ON CONFLICT ON CONSTRAINT pk_"+tableName+" DO UPDATE SET "
 	updateSet=""
 	for field in sqlVals.keys():
-		updateSet+=field.replace("-","_")+"=excluded."+field.replace("-","_")+","
+		flabel=colprfx+field.replace("-","_")
+		updateSet+=flabel+"=excluded."+flabel+","
 	query=query+updateSet.rstrip(',')
+
 	#print("sql: {}".format(query))
-	with psycopg2.connect(**configuration.metadata_warehouse_endpoint) as conn:
+	with postgreConn as conn:
 		conn.autocommit = True
 		with conn.cursor() as cursor:
-			try:
-				cursor.execute(query, sqlVals)
-			except psycopg2.ProgrammingError as e:
-				if e.pgcode==psycopg2.errorcodes.UNDEFINED_TABLE:
-					try:
-						colsOrdered=sqlVals.copy()
-						colsOrdered.pop("containerName")
-						colsOrdered.pop("name")
-						#CREATE TABLE MetaDataTable_SwiftInternal(MD_containerName, MD_name, MD_content_type, MD_content_length,
-						# MD_last_modified, MD_extractionDate TEXT, CONSTRAINT pk PRIMARY KEY (MD_containerName, MD_name))
-						cols= "containerName TEXT, name TEXT, "+(" TEXT, ".join(colsOrdered.keys()))+" TEXT"
-						cols=cols.replace("-","_")
-						tableQuery="CREATE TABLE "+tableName+" ("+cols+", CONSTRAINT pk_"+tableName+" PRIMARY KEY (containerName, name))"
-						#print("sql: {}".format(tableQuery))
-						log.info("Creating {}".format(tableName))
-						cursor.execute(tableQuery)
-						cursor.execute(query, sqlVals)
-					except psycopg2.ProgrammingError as e:
-						if e.pgcode==psycopg2.errorcodes.DUPLICATE_TABLE:
-							log.info("Race condition caused concurrent CREATE TABLE queries")
-							cursor.execute(query, sqlVals)
-						else:
-							raise e
-				else:
-					raise e
-			finally:
-				cursor.close()
-	return
+			cursor.execute(query, sqlVals)
+
+def createTablesIfAbsent(postgreConn):
+	with postgreConn as conn:
+		conn.autocommit = True
+		with conn.cursor() as cursor:
+			internalTags=["content-type", "content-length", "last-modified"]
+			createTableIfAbsent(cursor,"SwiftInternal",internalTags)
+			for filter in ImportFilter.mapping.values():
+				createTableIfAbsent(cursor,filter.myName,filter.myValidTagNames)
+
+def createTableIfAbsent(cursor, filterName, tags):
+	tableName=deriveTableName(filterName)
+	constants ="{0}containerName TEXT, {0}name TEXT, {0}extractionDate TEXT, ".format(colprfx)
+	cols= constants+colprfx+(" TEXT, "+colprfx).join(tags)+" TEXT"
+	cols=cols.replace("-","_")
+
+	if "SwiftInternal"==filterName:
+		fkey=""
+	else:
+		fkey=", FOREIGN KEY ({0}containerName, {0}name) REFERENCES filter_SwiftInternal ({0}containerName, {0}name)".format(colprfx)
+	tableQuery="CREATE TABLE IF NOT EXISTS "+tableName+" ("+cols+", CONSTRAINT pk_"+tableName+" PRIMARY KEY ({0}containerName, {0}name)".format(colprfx)+fkey+")"
+	log.info("Creating {}".format(tableName))
+	#print("sql: {}".format(tableQuery))
+	#cursor.execute("DROP TABLE "+tableName +" CASCADE")
+	cursor.execute(tableQuery)
