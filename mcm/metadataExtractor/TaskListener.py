@@ -61,7 +61,7 @@ class Tasklistener(object):
 		we consume only NEW messages; set reset_offset_on_start=False to use gloabl offset.
 
 		"""
-		self.consumer = self.topic.get_balanced_consumer(zookeeper_connect=configuration.zookeeper_endpoint,
+		self.consumer = self.topic.get_balanced_consumer(managed=True,
 		                                                 consumer_group=consumer_group,
 		                                                 auto_commit_enable=True,
 		                                                 auto_offset_reset=OffsetType.LATEST,
