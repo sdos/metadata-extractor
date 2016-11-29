@@ -56,7 +56,7 @@ def replicateMetadata(conn,containerName,objectName,objectType,postgreConn):
 	sqlVals=extractMetadataFromObject(conn,containerName,objectName,thisFilter.myName,thisFilter.myValidTagNames)
 
 	#only insert into db if content type has been indentified and metadata has been extracted
-	if len(set(sqlVals.values()))>4:
+	if len(set(sqlVals.values()))>3:
 		table=deriveTableName(thisFilter.myName)
 		upsertIntoDB(sqlVals,table,postgreConn)
 
@@ -79,18 +79,18 @@ def upsertIntoDB(sqlVals,tableName,postgreConn):
 
 	#print("sql: {}".format(query))
 	with postgreConn as conn:
-		conn.autocommit = True
 		with conn.cursor() as cursor:
 			cursor.execute(query, sqlVals)
+		postgreConn.commit()
 
 def createTablesIfAbsent(postgreConn):
 	with postgreConn as conn:
-		conn.autocommit = True
 		with conn.cursor() as cursor:
 			internalTags=["content-type", "content-length", "last-modified"]
 			createTableIfAbsent(cursor,"SwiftInternal",internalTags)
 			for filter in ImportFilter.mapping.values():
 				createTableIfAbsent(cursor,filter.myName,filter.myValidTagNames)
+		postgreConn.commit()
 
 def createTableIfAbsent(cursor, filterName, tags):
 	tableName=deriveTableName(filterName)

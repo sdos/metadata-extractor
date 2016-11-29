@@ -19,7 +19,7 @@ from mcm.swift.SwiftBackend import SwiftBackend
 # log lvls: DEBUG - INFO - WARNING - ERROR - CRITICAL
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-containerName = 'crypto-4'
+containerName = 'Hillary\'s emails'
 #swift_url = "http://192.168.209.204:8080/auth/v1.0"
 
 #swift_user = "test:tester"
