@@ -48,7 +48,7 @@ used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 ################################################################################
 """
 metadata_warehouse_endpoint = {
-	"database": "mcm-metadata_{}".format("test"), # TODO: add multi tenant support and tenant validation
+	"database": "mcm-metadata_{}".format(my_tenant_id),
 	"user": "postgres",
 	"password": "testing",
 	"host": "localhost",
