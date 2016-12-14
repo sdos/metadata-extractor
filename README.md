@@ -25,9 +25,9 @@ is currently done by setting parameters in
 
 ## Dev setup
 ### Requirements
-packages required by import filters:
+packages required:
 
-    sudo apt install libjpeg9
+    sudo apt install libjpeg9 librdkafka1
 
 ### first setup after new checkout
 make sure to specify a python 3 or higher interpreter for your virtualenv (MCM doesn't support python 2)
