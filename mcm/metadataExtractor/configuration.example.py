@@ -36,11 +36,11 @@ log_format = '%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s'
 """
 	API / service settings
 """
-swift_tenant = "test"
-swift_auth_url = "http://192.168.209.204:8080/auth/v1.0"
-swift_store_url = "http://192.168.209.204:8080/v1/AUTH_{}"
-
 kafka_broker_endpoint = "192.168.209.208:9092"
+
+swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
+
+my_tenant_id = "ea012720129645d9b32b23b4af5c154f"
 
 """
 ################################################################################
@@ -48,7 +48,7 @@ used by Analytics. Endpoint of the metadata warehouse PostgreSQL db
 ################################################################################
 """
 metadata_warehouse_endpoint = {
-	"database": "mcm-metadata_{}".format(swift_tenant),
+	"database": "mcm-metadata_{}".format("test"), # TODO: add multi tenant support and tenant validation
 	"user": "postgres",
 	"password": "testing",
 	"host": "localhost",

@@ -52,9 +52,10 @@ class Tasklistener(object):
 
 		# without timeout the consumer will wait forever for new msgs
 		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
-		self.topic = self.kc.topics[configuration.swift_tenant.encode('utf-8')]
+		# TODO: add support for listenting on multiple tenant queues
+		self.topic = self.kc.topics[configuration.my_tenant_id.encode("utf-8")]
 
-		consumer_group = 'mcmextractor-{}'.format(configuration.swift_tenant).encode('utf-8')
+		consumer_group = 'mcmextractor-{}'.format(configuration.my_tenant_id).encode('utf-8')
 		consumer_id = 'mcmextractor-1'.encode('utf-8')
 
 		"""
@@ -79,7 +80,10 @@ class Tasklistener(object):
 				if not j["type"] in valid_task_types:
 					logging.debug("msg type not ours")
 					continue
-				t = TaskRunner(configuration.swift_tenant, j["token"], j["type"], j["container"], j["correlation"])
+				if j["tenant-id"] and j["tenant-id"] != configuration.my_tenant_id:
+					logging.error("we have a message for a different tenant: {}".format(msg))
+					continue
+				t = TaskRunner(j["tenant-id"], j["token"], j["type"], j["container"], j["correlation"], self.topic)
 				t.start()
 			except Exception:
 				logging.exception("error consuming message")
@@ -90,20 +94,18 @@ class TaskRunner(Thread):
 	gets instantiated in a new thread to process one message
 	'''
 
-	def __init__(self, tenant, token, type, container, correlation):
+	def __init__(self, tenant_id, token, type, container, correlation, topic):
 		Thread.__init__(self)
 		self.worker_id = "MCMTaskRunner-{}-{}".format(socket.getfqdn(), os.getpid())
-		self.tenant = tenant
+		self.swift_url = configuration.swift_store_url_valid_prefix + tenant_id
 		self.token = token
 		self.task_type = type
 		self.container = container
 		self.correlation = correlation
-		# without timeout the consumer will wait forever for new msgs
-		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
-		self.topic = self.kc.topics[configuration.swift_tenant.encode('utf-8')]
+		self.topic = topic
 
 		logging.info(
-			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant, correlation))
+			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant_id, correlation))
 
 	def __send_ping(self):
 		logging.info("pong")
@@ -111,8 +113,7 @@ class TaskRunner(Thread):
 
 	def __dispatch_task_type(self):
 		if self.task_type in valid_task_types:
-			swift_store_url=configuration.swift_store_url.format(self.tenant)
-			ex = Extractor(containerName=self.container, storage_url=swift_store_url, token=self.token)
+			ex = Extractor(containerName=self.container, storage_url=self.swift_url, token=self.token)
 			if self.task_type == valid_task_types[0]:
 				s = ex.runIdentifierForWholeContainer()
 			elif self.task_type == valid_task_types[1]:
