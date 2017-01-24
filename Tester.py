@@ -17,34 +17,26 @@ from mcm.metadataExtractor import Replicator
 from mcm.swift.SwiftBackend import SwiftBackend
 
 # log lvls: DEBUG - INFO - WARNING - ERROR - CRITICAL
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-containerName = 'Hillary\'s emails'
-#swift_url = "http://192.168.209.204:8080/auth/v1.0"
+containerName = 'TPL docsa'
 
-#swift_user = "test:tester"
-#swift_pw = "testing"
-swift_auth_url = "http://192.168.209.204:8080/auth/v1.0"
-swift_store_url = "http://192.168.209.204:8080/v1/AUTH_{}"
-swift_user = "test:tester"
-swift_pw = "testing"
-
-swift_url = swift_auth_url
-log = logging.getLogger()
-sb = SwiftBackend(swift_url=swift_url, swift_user=swift_user, swift_pw=swift_pw)
-conn=sb._getConnection()
+#swift_auth_url = "http://192.168.209.204:8080/auth/v1.0"
+swift_auth_url = "http://localhost:5001/v2.0"
+swift_user = "sdos:sdos-tester"
+swift_pw = "passw0rd"
 
 
 if __name__ == '__main__':
-	log.error('starting metadata extractor tester')
-	ex = Extractor(containerName=containerName, swift_url=swift_url, swift_user=swift_user, swift_pw=swift_pw)
-	#ex.runIdentifierForWholeContainer()
+	logging.error('starting metadata extractor tester')
+	ex = Extractor(containerName=containerName, swift_url=swift_auth_url, swift_user=swift_user, swift_pw=swift_pw)
+	ex.runIdentifierForWholeContainer()
 	#ex.runFilterForWholeContainer()
 	#ex.replicateMetaData()
 	#Replicator.replicateMetadata(conn=conn,containerName=self.containerName,objectName=objName,objectType=objType)
 	#Replicator.replicateMetadata(conn=conn,containerName=containerName,objectName="DSC00712.JPG",objectType="image/jpeg")
-	ex.runReplicateMetadataForWholeContainer()
+	#ex.runReplicateMetadataForWholeContainer()
 
 	# ex.runDummyLoad()
 
-	log.error('DONE')
+	logging.error('DONE')
