@@ -19,10 +19,11 @@ from mcm.swift.SwiftBackend import SwiftBackend
 # log lvls: DEBUG - INFO - WARNING - ERROR - CRITICAL
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s')
 
-containerName = 'TPL docsa'
+containerName = 'TPL docs'
 
 #swift_auth_url = "http://192.168.209.204:8080/auth/v1.0"
-swift_auth_url = "http://localhost:5001/v2.0"
+#swift_auth_url = "http://localhost:5001/v2.0"
+swift_auth_url = "http://192.168.209.208:3000/v2.0"
 swift_user = "sdos:sdos-tester"
 swift_pw = "passw0rd"
 
@@ -30,8 +31,8 @@ swift_pw = "passw0rd"
 if __name__ == '__main__':
 	logging.error('starting metadata extractor tester')
 	ex = Extractor(containerName=containerName, swift_url=swift_auth_url, swift_user=swift_user, swift_pw=swift_pw)
-	ex.runIdentifierForWholeContainer()
-	#ex.runFilterForWholeContainer()
+	#ex.runIdentifierForWholeContainer()
+	ex.runFilterForWholeContainer()
 	#ex.replicateMetaData()
 	#Replicator.replicateMetadata(conn=conn,containerName=self.containerName,objectName=objName,objectType=objType)
 	#Replicator.replicateMetadata(conn=conn,containerName=containerName,objectName="DSC00712.JPG",objectType="image/jpeg")

@@ -33,7 +33,11 @@ class ImportFilterInterface(object):
 			k_clean = k.replace(' ', '-').lower()
 			if k_clean in self.myValidTagNames:
 				if (bytes == type(v)):
-					val = v.decode(encoding='UTF-8')
+					try:
+						val = v.decode(encoding='UTF-8')
+					except:
+						logging.warning("decoding value failed: {} - {}".format(k_clean, v))
+						continue
 				else:
 					val = v.__str__()
 				val = urllib.parse.quote(val)
