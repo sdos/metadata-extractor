@@ -12,22 +12,18 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 import logging
-
 import time
-
 from mcm.metadataExtractor.TaskListener import Tasklistener
 
-
-log = logging.getLogger()
 
 if __name__ == '__main__':
 
 	while True:
 		try:
-			log.error('starting metadata extractor task listener')
+			logging.error('starting metadata extractor task listener')
 			r = Tasklistener()
 			r.consumeMsgs()
 		except:
-			log.exception("listener crashed, restarting in 5s")
+			logging.exception("listener crashed, restarting in 5s")
 			time.sleep(5)
 
