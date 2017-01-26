@@ -36,7 +36,7 @@ log_format = '%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s'
 """
 	API / service settings
 """
-kafka_broker_endpoint = "192.168.209.208:9092"
+kafka_broker_endpoint = "localhost:9092"
 
 swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
 
