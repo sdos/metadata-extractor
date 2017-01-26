@@ -4,4 +4,4 @@
 p=$(pwd)
 export PYTHONPATH=$PYTHONPATH:$p/mcm
 
-source venvMcmExtractor/bin/activate
+source venvME/bin/activate
