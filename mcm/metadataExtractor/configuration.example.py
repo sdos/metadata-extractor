@@ -36,11 +36,13 @@ log_format = '%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s'
 """
 	API / service settings
 """
-kafka_broker_endpoint = "localhost:9092"
+kafka_broker_endpoint = "172.18.0.33:9092"
+zookeeper_endpoint = "172.18.0.33:2181"
 
 swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
 
-my_tenant_id = "ea012720129645d9b32b23b4af5c154f"
+#my_tenant_id = "ea012720129645d9b32b23b4af5c154f"
+my_tenant_id = "CEPH"
 
 """
 ################################################################################
@@ -51,6 +53,6 @@ metadata_warehouse_endpoint = {
 	"database": "mcm-metadata_{}".format(my_tenant_id),
 	"user": "postgres",
 	"password": "testing",
-	"host": "localhost",
+	"host": "172.18.0.44",
 	"port": "5432"
 }
