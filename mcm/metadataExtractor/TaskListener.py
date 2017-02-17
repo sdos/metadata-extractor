@@ -51,7 +51,7 @@ class Tasklistener(object):
 		logging.warning("starting task listener")
 
 		# without timeout the consumer will wait forever for new msgs
-		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=True)
+		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=False)
 		# TODO: add support for listenting on multiple tenant queues
 		self.topic = self.kc.topics[configuration.my_tenant_id.encode("utf-8")]
 
@@ -62,12 +62,20 @@ class Tasklistener(object):
 		we consume only NEW messages; set reset_offset_on_start=False to use gloabl offset.
 
 		"""
-		self.consumer = self.topic.get_balanced_consumer(managed=True,
-		                                                 consumer_group=consumer_group,
-		                                                 auto_commit_enable=True,
-		                                                 auto_offset_reset=OffsetType.LATEST,
-		                                                 reset_offset_on_start=True,
-		                                                 consumer_timeout_ms=-1)
+		# self.consumer = self.topic.get_balanced_consumer(managed=True,
+		#                                                  consumer_group=consumer_group,
+		#                                                  auto_commit_enable=True,
+		#                                                  auto_offset_reset=OffsetType.LATEST,
+		#                                                  reset_offset_on_start=True,
+		#                                                  consumer_timeout_ms=-1)
+		self.consumer = self.topic.get_simple_consumer(consumer_group=consumer_group,
+									  use_rdkafka=False,
+									  auto_commit_enable=False,
+									  auto_offset_reset=OffsetType.LATEST,
+									  reset_offset_on_start=False,
+									  consumer_timeout_ms=-1,
+									  fetch_min_bytes=1)
+
 
 	def consumeMsgs(self):
 		while True:
