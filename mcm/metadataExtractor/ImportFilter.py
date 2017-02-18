@@ -20,6 +20,8 @@ from mcm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterPng
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterTiff
 
+import logging
+
 mapping = dict()
 # image filters
 mapping[ImportFilterBmp.myContentType] = ImportFilterBmp
@@ -34,4 +36,11 @@ mapping[ImportFilterPDF.myContentType] = ImportFilterPDF
 
 
 def getFilterForObjType(objType):
-	return mapping[objType]()
+	logging.info("looking for filter type: >>{}<<".format(objType))
+
+	try:
+		return mapping[objType]()
+	except KeyError:
+		for name, filter in mapping.items():
+			if objType.startswith(name):
+				return filter()

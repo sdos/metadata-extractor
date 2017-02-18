@@ -59,8 +59,8 @@ class Extractor(object):
         thisObjBlob = self.sb.getObjBlob(conn, self.containerName, objName)
         try:
             thisFilter = ImportFilter.getFilterForObjType(objType)
-        except:
-            raise NoFilterFoundException("{}-{}".format(objName, objType))
+        except Exception as e:
+            raise NoFilterFoundException("{} - {} - {}".format(objName, objType, e))
         r = thisFilter.extractMetaData(thisObjBlob)
         return self.sb.updateMetaDataFields(conn=conn, containerName=self.containerName, objName=objName, metaDict=r)
 
@@ -84,6 +84,8 @@ class Extractor(object):
             # first go through all objs in the container and spawn a thread to run the filter
             self.log.error('committing {} jobs for {}'.format(len(objs), functionOnObject.__name__))
             for thisObj in objs:
+
+
                 try:
                     thisObjType = thisObj.get('content_type')
                     thisObjName = thisObj['name']
