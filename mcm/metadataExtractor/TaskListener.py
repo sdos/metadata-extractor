@@ -70,9 +70,9 @@ class Tasklistener(object):
 		#                                                  consumer_timeout_ms=-1)
 		self.consumer = self.topic.get_simple_consumer(consumer_group=consumer_group,
 									  use_rdkafka=False,
-									  auto_commit_enable=False,
+									  auto_commit_enable=True,
 									  auto_offset_reset=OffsetType.LATEST,
-									  reset_offset_on_start=False,
+									  reset_offset_on_start=True,
 									  consumer_timeout_ms=-1,
 									  fetch_min_bytes=1)
 
