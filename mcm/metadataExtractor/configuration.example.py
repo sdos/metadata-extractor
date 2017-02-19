@@ -38,7 +38,7 @@ log_format = '%(asctime)s - %(module)s - %(levelname)s ##\t  %(message)s'
 """
 kafka_broker_endpoint = "172.18.0.33:9092"
 
-swift_store_url_valid_prefix = "http://localhost:3000/v1/AUTH_"
+swift_store_url_valid_prefix = "http://172.18.0.11:3000/v1/AUTH_"
 
 #my_tenant_id = "ea012720129645d9b32b23b4af5c154f"
 my_tenant_id = "mcmdemo"
