@@ -14,8 +14,6 @@
 
 import logging, coloredlogs
 from mcm.metadataExtractor import configuration
-logging.basicConfig(level=configuration.log_level, format=configuration.log_format)
-
 
 
 log_format = '%(asctime)s %(module)s %(name)s[%(process)d][%(thread)d] %(levelname)s %(message)s'
