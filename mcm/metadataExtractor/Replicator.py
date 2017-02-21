@@ -18,7 +18,6 @@ import psycopg2
 import psycopg2.errorcodes
 import datetime, dateutil
 
-log = logging.getLogger()
 colprfx="md_"
 def extractMetadataFromObject(conn,containerName,objectName,filterName,filterTags):
 	header = conn.head_object(container=containerName, obj=objectName, headers=None)
@@ -103,7 +102,7 @@ def createTableIfAbsent(cursor, filterName, tags):
 	else:
 		fkey=", FOREIGN KEY ({0}containerName, {0}name) REFERENCES filter_SwiftInternal ({0}containerName, {0}name)".format(colprfx)
 	tableQuery="CREATE TABLE IF NOT EXISTS "+tableName+" ("+cols+", CONSTRAINT pk_"+tableName+" PRIMARY KEY ({0}containerName, {0}name)".format(colprfx)+fkey+")"
-	log.info("Creating {}".format(tableName))
+	logging.info("Creating {}".format(tableName))
 	#print("sql: {}".format(tableQuery))
 	#cursor.execute("DROP TABLE "+tableName +" CASCADE")
 	cursor.execute(tableQuery)

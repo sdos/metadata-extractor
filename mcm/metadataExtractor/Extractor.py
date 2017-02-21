@@ -14,6 +14,7 @@
 import concurrent.futures
 import logging
 
+import psycopg2.pool
 import swiftclient.multithreading
 
 from mcm.metadataExtractor import RetentionChecker, ImportFilter, Replicator, configuration
@@ -21,7 +22,6 @@ from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
 from mcm.metadataExtractor.Exceptions import NoFilterFoundException, NoRetentionDateException, \
     RetentionDateInFutureException
 from mcm.swift.SwiftBackend import SwiftBackend
-import psycopg2.pool
 
 
 class Extractor(object):
@@ -33,9 +33,8 @@ class Extractor(object):
         '''
         Constructor
         '''
-        self.log = logging.getLogger()
         self.containerName = containerName
-        self.log.info('initializing...')
+        logging.info('initializing...')
         self.swift_user = swift_user
         if storage_url and token:
             self.sb = SwiftBackend(storage_url=storage_url, token=token)
@@ -82,22 +81,21 @@ class Extractor(object):
             future_results = []
 
             # first go through all objs in the container and spawn a thread to run the filter
-            self.log.error('committing {} jobs for {}'.format(len(objs), functionOnObject.__name__))
+            logging.error('committing {} jobs for {}'.format(len(objs), functionOnObject.__name__))
             for thisObj in objs:
-
 
                 try:
                     thisObjType = thisObj.get('content_type')
                     thisObjName = thisObj['name']
 
-                    self.log.info('running {} for type: {} on obj: {}'.format(functionOnObject.__name__, thisObjType,
-                                                                              thisObjName))
+                    logging.info('running {} for type: {} on obj: {}'.format(functionOnObject.__name__, thisObjType,
+                                                                             thisObjName))
                     future_results.append(executor.submit(functionOnObject, thisObjType, thisObjName))
                 except Exception as exc:
                     logging.exception('could not create job for obj: {})'.format(thisObj))
 
             # try to get the individual results from the filters
-            self.log.error('Starting {} worker threads...'.format(self.numWorkers))
+            logging.error('Starting {} worker threads...'.format(self.numWorkers))
             numFailedJobs = 0
             numNoFilter = 0
             numNoRetentionDate = 0
@@ -107,21 +105,21 @@ class Extractor(object):
                 try:
                     data = future.result()
                 except NoFilterFoundException as exc:
-                    self.log.info('no filter found: {}'.format(exc))
+                    logging.info('no filter found: {}'.format(exc))
                     numNoFilter += 1
                 except NoRetentionDateException as exc:
-                    self.log.info('no retention date on obj: {}'.format(exc))
+                    logging.info('no retention date on obj: {}'.format(exc))
                     numNoRetentionDate += 1
                 except RetentionDateInFutureException as exc:
-                    self.log.info('retention date in future on obj: {}'.format(exc))
+                    logging.info('retention date in future on obj: {}'.format(exc))
                     numRetentionInFuture += 1
                 except Exception as exc:
-                    self.log.exception('worker failed with exception')
+                    logging.exception('worker failed with exception')
                     numFailedJobs += 1
                 else:
                     numOkJobs += 1
-                    self.log.info('worker succeeded on obj: {}'.format(data))
-            self.log.warning('Workers done!')
+                    logging.info('worker succeeded on obj: {}'.format(data))
+            logging.warning('Workers done!')
 
             if functionOnObject == self.getDataAndRunFilter:
                 msg = self.__msg_for_extractor(numFailedJobs, numNoFilter, numOkJobs, objs)
@@ -129,7 +127,7 @@ class Extractor(object):
                 msg = self.__msg_for_disposal(numFailedJobs, numNoRetentionDate, numRetentionInFuture, numOkJobs, objs)
             else:
                 msg = self.__msg_for_generic(numFailedJobs, numOkJobs, objs)
-            self.log.warning(msg)
+            logging.warning(msg)
             return msg
 
     def __msg_for_extractor(self, numFailedJobs, numNoFilter, numOkJobs, objs):

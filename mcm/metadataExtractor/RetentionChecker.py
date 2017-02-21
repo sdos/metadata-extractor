@@ -20,7 +20,6 @@ from mcm.metadataExtractor.Exceptions import RetentionDateInFutureException, NoR
 
 RETENTIONFIELD = 'x-object-meta-mgmt-retentiondate'
 
-log = logging.getLogger()
 
 
 ##############################################################################
@@ -29,7 +28,7 @@ log = logging.getLogger()
 def checkRetentionDate(conn, containerName, objectName):
 	d = getRetentionDate(conn, containerName, objectName)
 	if isRetentionOver(d):
-		log.warning("DELETING - retention over on obj: {}-{}-{}".format(containerName, objectName, d))
+		logging.warning("DELETING - retention over on obj: {}-{}-{}".format(containerName, objectName, d))
 		return conn.delete_object(containerName, objectName)
 	else:
 		raise(RetentionDateInFutureException("Retention NOT expired: {}-{}-{}".format(d, containerName, objectName)))
@@ -43,7 +42,7 @@ def getRetentionDate(conn, containerName, objectName):
 			d = dateutil.parser.parse(t)
 			return d
 		except Exception as e:
-			log.exception(
+			logging.exception(
 				"could not parse retention date -- {} -- on obj: {} in {}".format(t, objectName, containerName))
 			raise(e)
 

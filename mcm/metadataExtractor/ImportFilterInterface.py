@@ -19,7 +19,6 @@ class ImportFilterInterface(object):
 	'''
 	classdocs
 	'''
-	log = logging.getLogger()  # logger for all import filters
 
 	def __init__(self):
 		'''

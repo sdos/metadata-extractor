@@ -36,117 +36,116 @@ value_serializer = lambda v: json.dumps(v).encode('utf-8')
 
 
 def __try_parse_msg_content(m):
-	try:
-		return json.loads(m.value.decode("utf-8"))
-	except Exception as e:
-		return {"type": "Error", "error": "msg parsing failed"}
+    try:
+        return json.loads(m.value.decode("utf-8"))
+    except Exception as e:
+        return {"type": "Error", "error": "msg parsing failed"}
 
 
 class Tasklistener(object):
-	'''
-	listen for messages on kafka and run the identifier/extractor
-	'''
+    '''
+    listen for messages on kafka and run the identifier/extractor
+    '''
 
-	def __init__(self):
-		logging.warning("starting task listener")
+    def __init__(self):
+        logging.warning("starting task listener")
 
-		# without timeout the consumer will wait forever for new msgs
-		self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=False)
-		# TODO: add support for listenting on multiple tenant queues
-		self.topic = self.kc.topics[configuration.my_tenant_id.encode("utf-8")]
+        # without timeout the consumer will wait forever for new msgs
+        self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=False)
+        # TODO: add support for listenting on multiple tenant queues
+        self.topic = self.kc.topics[configuration.my_tenant_id.encode("utf-8")]
 
-		consumer_group = 'mcmextractor-{}'.format(configuration.my_tenant_id).encode('utf-8')
-		consumer_id = 'mcmextractor-1'.encode('utf-8')
+        consumer_group = 'mcmextractor-{}'.format(configuration.my_tenant_id).encode('utf-8')
+        consumer_id = 'mcmextractor-1'.encode('utf-8')
 
-		"""
-		we consume only NEW messages; set reset_offset_on_start=False to use gloabl offset.
+        """
+        we consume only NEW messages; set reset_offset_on_start=False to use gloabl offset.
 
-		"""
-		# self.consumer = self.topic.get_balanced_consumer(managed=True,
-		#                                                  consumer_group=consumer_group,
-		#                                                  auto_commit_enable=True,
-		#                                                  auto_offset_reset=OffsetType.LATEST,
-		#                                                  reset_offset_on_start=True,
-		#                                                  consumer_timeout_ms=-1)
-		self.consumer = self.topic.get_simple_consumer(consumer_group=consumer_group,
-									  use_rdkafka=False,
-									  auto_commit_enable=True,
-									  auto_offset_reset=OffsetType.LATEST,
-									  reset_offset_on_start=True,
-									  consumer_timeout_ms=-1,
-									  fetch_min_bytes=1)
+        """
+        # self.consumer = self.topic.get_balanced_consumer(managed=True,
+        #                                                  consumer_group=consumer_group,
+        #                                                  auto_commit_enable=True,
+        #                                                  auto_offset_reset=OffsetType.LATEST,
+        #                                                  reset_offset_on_start=True,
+        #                                                  consumer_timeout_ms=-1)
+        self.consumer = self.topic.get_simple_consumer(consumer_group=consumer_group,
+                                                       use_rdkafka=False,
+                                                       auto_commit_enable=True,
+                                                       auto_offset_reset=OffsetType.LATEST,
+                                                       reset_offset_on_start=True,
+                                                       consumer_timeout_ms=-1,
+                                                       fetch_min_bytes=1)
 
-
-	def consumeMsgs(self):
-		while True:
-			msg = self.consumer.consume(block=True)
-			if not msg:
-				continue
-			logging.debug("got msg: {}".format(msg))
-			try:
-				j = json.loads(msg.value.decode("utf-8"))
-				if not j["type"] in valid_task_types:
-					logging.debug("msg type not ours")
-					continue
-				if j["tenant-id"] and j["tenant-id"] != configuration.my_tenant_id:
-					logging.error("we have a message for a different tenant: {}".format(msg))
-					continue
-				t = TaskRunner(j["tenant-id"], j["token"], j["type"], j["container"], j["correlation"], self.topic)
-				t.start()
-			except Exception:
-				logging.exception("error consuming message")
+    def consumeMsgs(self):
+        while True:
+            msg = self.consumer.consume(block=True)
+            if not msg:
+                continue
+            logging.debug("got msg: {}".format(msg))
+            try:
+                j = json.loads(msg.value.decode("utf-8"))
+                if not j["type"] in valid_task_types:
+                    logging.debug("msg type not ours")
+                    continue
+                if j["tenant-id"] and j["tenant-id"] != configuration.my_tenant_id:
+                    logging.error("we have a message for a different tenant: {}".format(msg))
+                    continue
+                t = TaskRunner(j["tenant-id"], j["token"], j["type"], j["container"], j["correlation"], self.topic)
+                t.start()
+            except Exception:
+                logging.exception("error consuming message")
 
 
 class TaskRunner(Thread):
-	'''
-	gets instantiated in a new thread to process one message
-	'''
+    '''
+    gets instantiated in a new thread to process one message
+    '''
 
-	def __init__(self, tenant_id, token, type, container, correlation, topic):
-		Thread.__init__(self)
-		self.worker_id = "MCMTaskRunner-{}-{}".format(socket.getfqdn(), os.getpid())
-		self.swift_url = configuration.swift_store_url_valid_prefix + tenant_id
-		self.token = token
-		self.task_type = type
-		self.container = container
-		self.correlation = correlation
-		self.topic = topic
+    def __init__(self, tenant_id, token, type, container, correlation, topic):
+        Thread.__init__(self)
+        self.worker_id = "MCMTaskRunner-{}-{}".format(socket.getfqdn(), os.getpid())
+        self.swift_url = configuration.swift_store_url_valid_prefix + tenant_id
+        self.token = token
+        self.task_type = type
+        self.container = container
+        self.correlation = correlation
+        self.topic = topic
 
-		logging.info(
-			"running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant_id, correlation))
+        logging.info(
+            "running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant_id, correlation))
 
-	def __send_ping(self):
-		logging.info("pong")
-		self.__notifySender("pong", task_type="pong")
+    def __send_ping(self):
+        logging.info("pong")
+        self.__notifySender("pong", task_type="pong")
 
-	def __dispatch_task_type(self):
-		if self.task_type in valid_task_types:
-			ex = Extractor(containerName=self.container, storage_url=self.swift_url, token=self.token)
-			if self.task_type == valid_task_types[0]:
-				s = ex.runIdentifierForWholeContainer()
-			elif self.task_type == valid_task_types[1]:
-				s = ex.runFilterForWholeContainer()
-			elif self.task_type == valid_task_types[3]:
-				s = ex.runDisposalForWholeContainer()
-			elif self.task_type == valid_task_types[4]:
-				s = ex.runReplicateMetadataForWholeContainer()
-			self.__notifySender("task {} finished: {}".format(self.task_type, s), task_type="success")
+    def __dispatch_task_type(self):
+        if self.task_type in valid_task_types:
+            ex = Extractor(containerName=self.container, storage_url=self.swift_url, token=self.token)
+            if self.task_type == valid_task_types[0]:
+                s = ex.runIdentifierForWholeContainer()
+            elif self.task_type == valid_task_types[1]:
+                s = ex.runFilterForWholeContainer()
+            elif self.task_type == valid_task_types[3]:
+                s = ex.runDisposalForWholeContainer()
+            elif self.task_type == valid_task_types[4]:
+                s = ex.runReplicateMetadataForWholeContainer()
+            self.__notifySender("task {} finished: {}".format(self.task_type, s), task_type="success")
 
-	def run(self):
-		if self.task_type == valid_task_types[2]:
-			self.__send_ping()
-			return
-		m = 'starting task {}'.format(self.task_type, self.container)
-		logging.info(m)
-		self.__notifySender(m, task_type="processing")
-		self.__dispatch_task_type()
+    def run(self):
+        if self.task_type == valid_task_types[2]:
+            self.__send_ping()
+            return
+        m = 'starting task {}'.format(self.task_type, self.container)
+        logging.info(m)
+        self.__notifySender(m, task_type="processing")
+        self.__dispatch_task_type()
 
-	def __notifySender(self, msg, task_type="response"):
-		j = {"type": task_type,
-		     "correlation": self.correlation,
-		     "container": self.container,
-		     "message": msg,
-		     "worker": self.worker_id}
-		logging.info(j)
-		with self.topic.get_producer(linger_ms=100) as producer:
-			producer.produce(value_serializer(j))
+    def __notifySender(self, msg, task_type="response"):
+        j = {"type": task_type,
+             "correlation": self.correlation,
+             "container": self.container,
+             "message": msg,
+             "worker": self.worker_id}
+        logging.info(j)
+        with self.topic.get_producer(linger_ms=100) as producer:
+            producer.produce(value_serializer(j))
