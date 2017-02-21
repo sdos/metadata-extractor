@@ -13,6 +13,17 @@
 """
 
 
+class SameTypeException(Exception):
+	'''
+	classdocs
+	'''
+
+	def __init__(self, message):
+		'''
+		Constructor
+		'''
+		self.message = message
+
 class NoFilterFoundException(Exception):
 	'''
 	classdocs

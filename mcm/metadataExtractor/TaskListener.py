@@ -120,7 +120,7 @@ class TaskRunner(Thread):
 
     def __dispatch_task_type(self):
         if self.task_type in valid_task_types:
-            ex = Extractor(containerName=self.container, storage_url=self.swift_url, token=self.token)
+            ex = Extractor(container_name=self.container, storage_url=self.swift_url, token=self.token)
             if self.task_type == valid_task_types[0]:
                 s = ex.runIdentifierForWholeContainer()
             elif self.task_type == valid_task_types[1]:

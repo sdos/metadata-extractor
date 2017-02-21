@@ -30,7 +30,7 @@ swift_pw = "passw0rd"
 
 if __name__ == '__main__':
 	logging.error('starting metadata extractor tester')
-	ex = Extractor(containerName=containerName, swift_url=swift_auth_url, swift_user=swift_user, swift_pw=swift_pw)
+	ex = Extractor(container_name=containerName, swift_url=swift_auth_url, swift_user=swift_user, swift_pw=swift_pw)
 	#ex.runIdentifierForWholeContainer()
 	ex.runFilterForWholeContainer()
 	#ex.replicateMetaData()
