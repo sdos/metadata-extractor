@@ -43,7 +43,7 @@ def msg_for_disposal(numFailedJobs, numNoRetentionDate, numRetentionInFuture, nu
 
 
 def msg_for_identify(num_no_change, numFailedJobs, numOkJobs, objs):
-    total = numOkJobs + numFailedJobs
+    total = numOkJobs + numFailedJobs + num_no_change
     msg = 'Changed: {}, No change: {}, Failed: {} -- Total: {}, Fail rate: {}%, Missing: {} '.format(
         numOkJobs,
         num_no_change,
@@ -53,7 +53,7 @@ def msg_for_identify(num_no_change, numFailedJobs, numOkJobs, objs):
             (
                 100 / total) * numFailedJobs) if (
             total > 0) else 0,
-        len(objs) - total - num_no_change)
+        len(objs) - total)
     return msg
 
 
