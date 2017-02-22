@@ -12,7 +12,7 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
-import logging, coloredlogs
+import logging, coloredlogs, sys
 from mcm.metadataExtractor import configuration
 
 
@@ -21,3 +21,8 @@ field_styles = {'module': {'color': 'magenta'}, 'hostname': {'color': 'magenta'}
                 'name': {'color': 'blue'}, 'levelname': {'color': 'black', 'bold': True}, 'asctime': {'color': 'green'}}
 
 coloredlogs.install(level=configuration.log_level, fmt=log_format, field_styles=field_styles)
+
+logging.error("###############################################################################")
+logging.error("Task runner service running")
+logging.error("Python {}".format(sys.version))
+logging.error("###############################################################################")
