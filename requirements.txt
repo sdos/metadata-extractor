@@ -1,4 +1,9 @@
 coloredlogs==5.2
 python-swiftclient==3.3.0
+python-dateutil==2.6.0
 pykafka==2.5.0
 psycopg2==2.6.2
+pdfminer.six==20160614
+ExifRead==2.1.2
+Pillow==4.0.0
+python-magic==0.4.12
