@@ -80,7 +80,7 @@ postgres_host = os.getenv("POSTGRES_HOST", "localhost")
 postgres_port = os.getenv("POSTGRES_PORT", 5432)
 
 metadata_warehouse_endpoint = {
-    "database": "mcm_metadata_{}".format(my_tenant_id),
+    "database": "mcm_metadata_{}".format(my_tenant_name),
     "user": "postgres",
     "password": "passw0rd",
     "host": postgres_host,
