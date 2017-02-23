@@ -53,10 +53,9 @@ class Tasklistener(object):
         # without timeout the consumer will wait forever for new msgs
         self.kc = KafkaClient(hosts=configuration.kafka_broker_endpoint, use_greenlets=False)
         # TODO: add support for listenting on multiple tenant queues
-        self.topic = self.kc.topics[configuration.my_tenant_id.encode("utf-8")]
+        self.topic = self.kc.topics[configuration.my_tenant_name.encode("utf-8")]
 
-        consumer_group = 'mcmextractor-{}'.format(configuration.my_tenant_id).encode('utf-8')
-        consumer_id = 'mcmextractor-1'.encode('utf-8')
+        consumer_group = 'mcmextractor-{}'.format(configuration.my_tenant_name).encode('utf-8')
 
         """
         we consume only NEW messages; set reset_offset_on_start=False to use gloabl offset.
@@ -85,15 +84,12 @@ class Tasklistener(object):
             try:
                 j = json.loads(msg.value.decode("utf-8"))
                 if not j["type"] in valid_task_types:
-                    logging.debug("msg type not ours")
-                    continue
-                if j["tenant-id"] and j["tenant-id"] != configuration.my_tenant_id:
-                    logging.error("we have a message for a different tenant: {}".format(msg))
+                    logging.warning("msg type not ours: {}".format(j))
                     continue
                 t = TaskRunner(j["tenant-id"], j["token"], j["type"], j["container"], j["correlation"], self.topic)
                 t.start()
             except Exception:
-                logging.exception("error consuming message")
+                logging.exception("error consuming message: {}".format(msg.value))
 
 
 class TaskRunner(Thread):

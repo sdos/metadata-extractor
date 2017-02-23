@@ -41,7 +41,7 @@ MCM tenant
 ################################################################################
 """
 
-my_tenant_id = os.getenv("TENANT_NAME", "mcmdemo")
+my_tenant_name = os.getenv("TENANT_NAME", "mcmdemo")
 
 
 
