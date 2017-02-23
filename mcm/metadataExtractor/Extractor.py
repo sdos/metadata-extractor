@@ -19,7 +19,7 @@ import swiftclient.multithreading
 
 from mcm.metadataExtractor import RetentionChecker, ImportFilter, Replicator, configuration, extractor_util
 from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
-import mcm.metadataExtractor.Exceptions
+from metadataExtractor.Exceptions import *
 from mcm.swift.SwiftBackend import SwiftBackend
 
 
@@ -79,16 +79,16 @@ class Extractor(object):
             for results in concurrent.futures.as_completed(future_results):
                 try:
                     data = results.result()
-                except mcm.metadataExtractor.Exceptions.NoFilterFoundException as e:
+                except NoFilterFoundException as e:
                     logging.info('no filter found: {}'.format(e))
                     num_jobs_no_filter += 1
-                except mcm.metadataExtractor.Exceptions.NoRetentionDateException as e:
+                except NoRetentionDateException as e:
                     logging.info('no retention date on obj: {}'.format(e))
                     num_jobs_no_retention += 1
-                except mcm.metadataExtractor.Exceptions.RetentionDateInFutureException as e:
+                except RetentionDateInFutureException as e:
                     logging.info('retention date in future on obj: {}'.format(e))
                     num_jobs_retention_in_future += 1
-                except mcm.metadataExtractor.Exceptions.SameTypeException as e:
+                except SameTypeException as e:
                     logging.info('{}'.format(e))
                     num_jobs_unchanged_type += 1
                 except Exception as e:
@@ -125,10 +125,7 @@ class Extractor(object):
 
     def getDataAndRunFilter(self, conn, objType, objName):
         thisObjBlob = self.sb.getObjBlob(conn, self.container_name, objName)
-        try:
-            thisFilter = ImportFilter.getFilterForObjType(objType)
-        except Exception as e:
-            raise mcm.metadataExtractor.Exceptions.NoFilterFoundException("{} - {} - {}".format(objName, objType, e))
+        thisFilter = ImportFilter.getFilterForObjType(objType)
         r = thisFilter.extractMetaData(thisObjBlob)
         return self.sb.updateMetaDataFields(conn=conn, containerName=self.container_name, objName=objName,
                                             metaDict=r)
@@ -147,7 +144,7 @@ class Extractor(object):
         thisObjBlob = self.sb.getObjBlob(conn, self.container_name, objName)
         ctype = ContentTypeIdentifier().identifyContentType(thisObjBlob)
         if objType == ctype:
-            raise mcm.metadataExtractor.Exceptions.SameTypeException(
+            raise SameTypeException(
                 "Object {} already has type {}".format(objName, objType))
         return self.sb.updateObjContentType(conn, containerName=self.container_name, objName=objName,
                                             newContentType=ctype)

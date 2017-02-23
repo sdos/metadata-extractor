@@ -46,10 +46,7 @@ def replicateMetadata(conn,containerName,objectName,objectType,postgreConn):
 	upsertIntoDB(sqlVals,table,postgreConn)
 
 	#try to find content type specific filter
-	try:
-		thisFilter = ImportFilter.getFilterForObjType(objectType)
-	except:
-		raise NoFilterFoundException("{}-{}".format(objectName, objectType))
+	thisFilter = ImportFilter.getFilterForObjType(objectType)
 
 	#try to insert into content type specific table
 	sqlVals=extractMetadataFromObject(conn,containerName,objectName,thisFilter.myName,thisFilter.myValidTagNames)

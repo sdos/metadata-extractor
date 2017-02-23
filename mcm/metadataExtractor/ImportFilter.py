@@ -12,6 +12,8 @@
 	of the MIT license.  See the LICENSE file for details.
 """
 
+import logging
+
 from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterEmail
 from mcm.metadataExtractor.ImportFilterDocuments import ImportFilterPDF
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterBmp
@@ -19,8 +21,7 @@ from mcm.metadataExtractor.ImportFilterImages import ImportFilterGif
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterPng
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterTiff
-
-import logging
+from metadataExtractor.Exceptions import NoFilterFoundException
 
 mapping = dict()
 # image filters
@@ -36,11 +37,12 @@ mapping[ImportFilterPDF.myContentType] = ImportFilterPDF
 
 
 def getFilterForObjType(objType):
-	logging.info("looking for filter type: >>{}<<".format(objType))
+    logging.info("looking for filter type: >>{}<<".format(objType))
 
-	try:
-		return mapping[objType]()
-	except KeyError:
-		for name, filter in mapping.items():
-			if objType.startswith(name):
-				return filter()
+    try:
+        return mapping[objType]()
+    except KeyError:
+        for name, filter in mapping.items():
+            if objType.startswith(name):
+                return filter()
+    raise NoFilterFoundException("no filter for type: >{}<".format(objType))
