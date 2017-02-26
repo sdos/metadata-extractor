@@ -169,7 +169,7 @@ class Extractor(object):
     ################################################################################
     """
 
-    def runReplicateMetadataForWholeContainer(self):
+    def runReplicateMetadataForAllContainers(self):
 
         # create connection pool
         self.postgreConnPool = psycopg2.pool.ThreadedConnectionPool(5, self.num_workers, None,
@@ -181,7 +181,19 @@ class Extractor(object):
         finally:
             self.postgreConnPool.putconn(postgreConn)
 
-        return self.run_for_all_objects_in_container(function_on_object=self.getMetadataAndReplicate)
+        containers = self.sb.get_container_list()
+        Replicator.replicate_container_info(postgres_connection=postgreConn, container_info=containers)
+
+        messages = []
+
+        for this_container in containers:
+            self.container_name = this_container["name"]
+            logging.info("replicating container: {}".format(self.container_name))
+            msg = self.run_for_all_objects_in_container(function_on_object=self.getMetadataAndReplicate)
+            messages.append("container: '{}': {}     ".format(self.container_name, msg))
+
+
+        return messages
 
     def getMetadataAndReplicate(self, conn, objType, objName):
         postgreConn = self.postgreConnPool.getconn()

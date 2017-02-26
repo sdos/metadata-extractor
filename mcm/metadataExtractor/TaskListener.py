@@ -124,7 +124,7 @@ class TaskRunner(Thread):
             elif self.task_type == valid_task_types[3]:
                 s = ex.runDisposalForWholeContainer()
             elif self.task_type == valid_task_types[4]:
-                s = ex.runReplicateMetadataForWholeContainer()
+                s = ex.runReplicateMetadataForAllContainers()
             self.__notifySender("task {} finished: {}".format(self.task_type, s), task_type="success")
 
     def run(self):

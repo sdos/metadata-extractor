@@ -56,12 +56,34 @@ class SwiftBackend(object):
                 mdOut.pop(k)
         return mdOut
 
-    #############################################################################
+    ###############################################################################
     ###############################################################################
 
-    # Retrieves list of all objects of the specified container
-    # @exception_wrapper(404, "requested resource does not exist", log)
+
+    def get_container_list(self):
+        """
+        get a list of all containers including their metadata
+        :return:
+        """
+        self.log.debug("Retrieving list of all containers:")
+        conn = self._getConnection()
+        containers = []
+        for this_container in conn.get_account()[1]:
+            if ("name" in this_container):
+                container_info = conn.head_container(container=this_container["name"])
+                container_info.update(this_container)
+                containers.append(container_info)
+        return containers
+
     def get_object_list(self, container_name, limit=None, marker=None, prefix=None):
+        """
+        Retrieves list of all objects of the specified container
+        :param container_name:
+        :param limit:
+        :param marker:
+        :param prefix:
+        :return:
+        """
         self.log.debug(
             "Retrieving list of all objects of container: {} with parameter: limit = {}, marker = {}, prefix = {}"
                 .format(container_name, limit, marker, prefix))
