@@ -107,7 +107,7 @@ class TaskRunner(Thread):
         self.correlation = correlation
         self.topic = topic
 
-        logging.info(
+        logging.warning(
             "running task {} on container {} for tenant {} - corr: {}".format(type, container, tenant_id, correlation))
 
     def __send_ping(self):

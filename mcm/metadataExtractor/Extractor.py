@@ -186,11 +186,15 @@ class Extractor(object):
 
         messages = []
 
-        for this_container in containers:
-            self.container_name = this_container["name"]
-            logging.info("replicating container: {}".format(self.container_name))
-            msg = self.run_for_all_objects_in_container(function_on_object=self.getMetadataAndReplicate)
-            messages.append("container: '{}': {}     ".format(self.container_name, msg))
+        # if a container is set, only process this one
+        if self.container_name:
+            messages = self.run_for_all_objects_in_container(function_on_object=self.getMetadataAndReplicate)
+        else:
+            for this_container in containers:
+                self.container_name = this_container["name"]
+                logging.info("replicating container: {}".format(self.container_name))
+                msg = self.run_for_all_objects_in_container(function_on_object=self.getMetadataAndReplicate)
+                messages.append("container: '{}': {}     ".format(self.container_name, msg))
 
 
         return messages
