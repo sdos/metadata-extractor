@@ -21,7 +21,7 @@ from mcm.metadataExtractor.ImportFilterImages import ImportFilterGif
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterJpeg
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterPng
 from mcm.metadataExtractor.ImportFilterImages import ImportFilterTiff
-from metadataExtractor.Exceptions import NoFilterFoundException
+from mcm.metadataExtractor.Exceptions import NoFilterFoundException
 
 mapping = dict()
 # image filters

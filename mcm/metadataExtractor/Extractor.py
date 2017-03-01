@@ -19,7 +19,7 @@ import swiftclient.multithreading
 
 from mcm.metadataExtractor import RetentionChecker, ImportFilter, Replicator, configuration, extractor_util
 from mcm.metadataExtractor.ContentTypeIdentifier import ContentTypeIdentifier
-from metadataExtractor.Exceptions import *
+from mcm.metadataExtractor.Exceptions import *
 from mcm.swift.SwiftBackend import SwiftBackend
 
 

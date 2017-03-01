@@ -11,12 +11,11 @@
 	This software may be modified and distributed under the terms
 	of the MIT license.  See the LICENSE file for details.
 """
+import datetime
+import dateutil
 import logging
-from mcm.metadataExtractor import ImportFilter, configuration
-from mcm.metadataExtractor.Exceptions import NoFilterFoundException
-import psycopg2
-import psycopg2.errorcodes
-import datetime, dateutil
+
+from mcm.metadataExtractor import ImportFilter
 
 colprfx = "md_"
 
