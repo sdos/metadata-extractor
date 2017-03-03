@@ -22,6 +22,9 @@ field_styles = {'module': {'color': 'magenta'}, 'hostname': {'color': 'magenta'}
 
 coloredlogs.install(level=configuration.log_level, fmt=log_format, field_styles=field_styles)
 
+# very chatty module...
+logging.getLogger("requests.packages.urllib3").setLevel(logging.ERROR)
+
 logging.error("###############################################################################")
 logging.error("Task runner service running")
 logging.error("Python {}".format(sys.version))
